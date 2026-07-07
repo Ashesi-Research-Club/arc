@@ -1,0 +1,42 @@
+[
+  {
+    "id": "sinam-ametewee",
+    "name": "Sinam Afi Serwa Ametewee",
+    "role": "Editor-in-Chief",
+    "year": "Year 3",
+    "specialization": "Computer Science",
+    "description": "Leads the editorial desk and writes long-form researcher profiles.",
+    "order": 1,
+    "isActive": true
+  },
+  {
+    "id": "kojo-mensah",
+    "name": "Kojo Mensah",
+    "role": "Managing Editor",
+    "year": "Year 4",
+    "specialization": "Engineering",
+    "description": "Runs the publishing pipeline and commissions the category desks.",
+    "order": 2,
+    "isActive": true
+  },
+  {
+    "id": "ama-owusu",
+    "name": "Ama Owusu",
+    "role": "Research Editor",
+    "year": "Year 3",
+    "specialization": "Business",
+    "description": "Fact-checks technical claims and liaises with profiled researchers.",
+    "order": 3,
+    "isActive": true
+  },
+  {
+    "id": "yaw-darko",
+    "name": "Yaw Darko",
+    "role": "Design Lead",
+    "year": "Year 2",
+    "specialization": "Interdisciplinary",
+    "description": "Owns the black-and-white house style and the reading experience.",
+    "order": 4,
+    "isActive": true
+  }
+]
