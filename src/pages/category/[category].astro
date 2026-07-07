@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import StoryRow from '../../components/StoryRow.astro';
+import { CATEGORY_LABELS } from '../../lib/categories';
+import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+
+export async function getStaticPaths() {
+  const articles = await publishedArticles();
+  return Object.keys(CATEGORY_LABELS).map((category) => ({
+    params: { category },
+    props: { articles: articles.filter((a) => a.data.category === category) },
+  }));
+}
+
+const { category } = Astro.params;
+const { articles } = Astro.props;
+const title = CATEGORY_LABELS[category!];
+---
+<Base title={`${title} — Ashesi Research Club`}>
+  <main>
+    <div class="eyebrow">Section</div>
+    <h1>{title}</h1>
+    <hr class="arc-rule" />
+    {articles.length === 0 ? (
+      <div class="empty">
+        <div class="e-head">Nothing here yet</div>
+        <div class="e-sub">No {title} stories have been published — the desk is always commissioning. <a href="/apply/">Pitch yours</a>.</div>
+      </div>
+    ) : (
+      articles.map((a) => (
+        <StoryRow
+          href={`/articles/${a.id}/`}
+          title={a.data.title}
+          category={a.data.category}
+          excerpt={a.data.excerpt}
+          writtenBy={a.data.writtenBy}
+          date={formatDate(a.data.publishedDate)}
+          readTime={minutes(a)}
+          image={a.data.featuredImage}
+        />
+      ))
+    )}
+  </main>
+</Base>
+
+<style>
+  main { max-width: 1000px; margin: 0 auto; padding: 48px 24px 96px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1.04; color: var(--ink); margin: 12px 0 24px; }
+  .empty { padding: 64px 0; text-align: center; }
+  .e-head { font-family: var(--font-display); font-size: 28px; color: var(--ink); margin-bottom: 8px; }
+  .e-sub { font-family: var(--font-body); font-size: 16px; color: var(--muted); }
+  .e-sub a { color: var(--ink); }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    h1 { font-size: 38px; }
+  }
+</style>
