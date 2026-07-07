@@ -1,17 +1,155 @@
 ---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Byline from '../components/Byline.astro';
+import CategoryEyebrow from '../components/CategoryEyebrow.astro';
+import Avatar from '../components/Avatar.astro';
+import Photo from '../components/Photo.astro';
+import { label } from '../lib/categories';
+import { publishedArticles, formatDate, minutes } from '../lib/articles';
 
+const articles = await publishedArticles();
+const cover = articles.find((a) => a.data.featured) ?? articles[0];
+const secondary = articles.filter((a) => a.id !== cover?.id);
+const researchers = await getCollection('researchers', ({ data }) => data.status === 'active');
 ---
+<Base>
+  <main>
+    {cover && (
+      <article class="cover arc-reveal">
+        <a href={`/articles/${cover.id}/`} class="cover-media">
+          <Photo src={cover.data.featuredImage} ratio="16/9" label={`Cover · ${label(cover.data.category)}`} />
+        </a>
+        <div class="cover-text">
+          <CategoryEyebrow category={cover.data.category} />
+          <h1><a href={`/articles/${cover.id}/`}>{cover.data.title}</a></h1>
+          <p>{cover.data.excerpt}</p>
+          <div class="cover-byline">
+            <Byline writer={cover.data.writtenBy} date={formatDate(cover.data.publishedDate)} readTime={minutes(cover)} />
+          </div>
+        </div>
+      </article>
+    )}
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+    <hr class="arc-rule" />
+
+    <div class="below">
+      <section>
+        <div class="col-head">Latest</div>
+        {secondary.length === 0 && (
+          <p class="empty">More stories are on the way — the desk is writing.</p>
+        )}
+        {secondary.map((a) => (
+          <article class="secondary">
+            <a href={`/articles/${a.id}/`} aria-hidden="true" tabindex="-1">
+              <Photo src={a.data.featuredImage} ratio="4/3" label={label(a.data.category)} />
+            </a>
+            <div>
+              <CategoryEyebrow category={a.data.category} />
+              <h2><a href={`/articles/${a.id}/`}>{a.data.title}</a></h2>
+              <p>{a.data.excerpt}</p>
+              <div class="sec-byline">
+                <Byline writer={a.data.writtenBy} date={formatDate(a.data.publishedDate)} readTime={minutes(a)} size="sm" />
+              </div>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <aside>
+        <div class="col-head">Profiled researchers</div>
+        {researchers.map((p, i) => (
+          <div>
+            <a href={`/researchers/${p.id}/`} class="rail-person">
+              <Avatar name={p.data.name} src={p.data.avatar} size={48} />
+              <span>
+                <span class="rail-name">{p.data.name}</span>
+                <span class="rail-meta">{p.data.program} · {p.data.yearOfStudy}</span>
+              </span>
+            </a>
+            {i < researchers.length - 1 && <hr class="arc-rule rail-rule" />}
+          </div>
+        ))}
+        <div class="join">
+          <div class="col-head">Join the desk</div>
+          <p>Researching something worth telling? Pitch it to the club.</p>
+          <a href="/apply/" class="arc-button" data-variant="secondary">Apply to publish</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--pad-page-x) 80px;
+  }
+  .cover { padding-top: 40px; }
+  .cover-media { display: block; text-decoration: none; }
+  .cover-text { max-width: 820px; margin-top: 26px; }
+  .cover h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 60px;
+    line-height: 1.04;
+    letter-spacing: var(--track-tight);
+    margin: 14px 0 0;
+  }
+  .cover h1 a { color: var(--ink); text-decoration: none; }
+  .cover p {
+    font-family: var(--font-body);
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 18px 0 0;
+    max-width: 720px;
+  }
+  .cover-byline { margin-top: 22px; }
+  main > .arc-rule { margin: 56px 0; }
+
+  .below { display: grid; grid-template-columns: 1.7fr 1fr; gap: 56px; }
+  .col-head {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+  .secondary {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .secondary + .secondary { margin-top: 40px; }
+  .secondary h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 10px 0 0; }
+  .secondary h2 a { color: var(--ink); text-decoration: none; }
+  .secondary p { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink); margin: 12px 0 0; }
+  .sec-byline { margin-top: 16px; }
+  .empty { font-family: var(--font-body); font-size: 16px; color: var(--muted); }
+
+  aside { border-left: 1px solid var(--hairline); padding-left: 32px; }
+  .rail-person { display: flex; gap: 14px; padding: 4px 0; text-decoration: none; }
+  .rail-name { display: block; font-family: var(--font-display); font-size: 19px; line-height: 1.15; color: var(--ink); }
+  .rail-meta { display: block; font-family: var(--font-sans); font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .rail-rule { margin: 18px 0; }
+  .join { margin-top: 28px; }
+  .join p { font-family: var(--font-body); font-size: 15px; line-height: 1.55; color: var(--ink); margin: 0 0 16px; }
+
+  @media (max-width: 1023px) {
+    .below { grid-template-columns: 1fr; gap: 48px; }
+    aside { border-left: none; padding-left: 0; border-top: 1px solid var(--hairline); padding-top: 32px; }
+  }
+  @media (max-width: 767px) {
+    .cover { padding-top: 24px; }
+    .cover h1 { font-size: var(--display-hero-mobile); }
+    .cover p { font-size: 18px; }
+    main > .arc-rule { margin: 40px 0; }
+    .secondary { grid-template-columns: 1fr; gap: 16px; }
+    .secondary h2 { font-size: 26px; }
+  }
+</style>
