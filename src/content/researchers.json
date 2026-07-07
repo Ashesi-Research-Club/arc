@@ -1,0 +1,24 @@
+[
+  {
+    "id": "isaac-osei-nyantakyi",
+    "firstName": "Isaac",
+    "lastName": "Osei Nyantakyi",
+    "name": "Isaac Osei Nyantakyi",
+    "program": "Electrical Engineering",
+    "yearOfStudy": "Faculty",
+    "bio": "Ghanaian signal-processing researcher and avid gamer with a master's in e-sports management. Did his master's and PhD in China and was part of Huawei's founding 5G deployment-and-testing team. Believes every project must have real-world impact.",
+    "interests": ["Signal processing", "Localization (AOA/TDOA)", "The ACGA algorithm", "Renewable energy"],
+    "status": "active"
+  },
+  {
+    "id": "elijah-boateng",
+    "firstName": "Elijah",
+    "lastName": "Kwaku Adutwum Boateng",
+    "name": "Elijah Kwaku Adutwum Boateng",
+    "program": "Computer Science",
+    "yearOfStudy": "Graduate · Class of 2023",
+    "bio": "Curious and determined Intelligent Computing master's student at Ashesi, Class of 2023. Built a 95–96% accurate facial-recognition capstone and now works on low-cost, locally-runnable vision-language models — a \"hospital in your pocket\" for healthcare in Ghana.",
+    "interests": ["Machine intelligence", "Computer vision", "Facial recognition", "Vision-language models", "Low-cost healthcare AI"],
+    "status": "active"
+  }
+]
