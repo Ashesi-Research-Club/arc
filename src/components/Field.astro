@@ -1,0 +1,15 @@
+---
+interface Props { label: string; htmlFor: string; hint?: string; required?: boolean }
+const { label, htmlFor, hint, required = false } = Astro.props;
+---
+<div class="arc-field">
+  <label for={htmlFor}>{label}{required && <span aria-hidden="true"> *</span>}</label>
+  <slot />
+  {hint && <div class="hint">{hint}</div>}
+</div>
+
+<style>
+  .arc-field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink); }
+  .hint { font-family: var(--font-sans); font-size: 12px; color: var(--muted); }
+</style>
