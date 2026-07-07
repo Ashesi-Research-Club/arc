@@ -1,0 +1,101 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Avatar from '../../components/Avatar.astro';
+import CategoryEyebrow from '../../components/CategoryEyebrow.astro';
+import Photo from '../../components/Photo.astro';
+import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+
+export async function getStaticPaths() {
+  const researchers = await getCollection('researchers');
+  const articles = await publishedArticles();
+  return researchers.map((r) => ({
+    params: { slug: r.id },
+    props: { researcher: r, articles: articles.filter((a) => a.data.researcher.id === r.id) },
+  }));
+}
+
+const { researcher: r, articles } = Astro.props;
+---
+<Base title={`${r.data.name} — Ashesi Research Club`} description={r.data.bio}>
+  <main>
+    <a href="/" class="back">← Ashesi Research Club</a>
+    <div class="head">
+      <Avatar name={r.data.name} src={r.data.avatar} size={96} />
+      <div>
+        <div class="eyebrow">Researcher</div>
+        <h1>{r.data.name}</h1>
+        <div class="meta">{r.data.program} · {r.data.yearOfStudy}</div>
+      </div>
+    </div>
+    <p class="bio">{r.data.bio}</p>
+    <div class="interests">
+      {r.data.interests.map((t) => <span class="arc-tag">{t}</span>)}
+    </div>
+
+    <div class="featured-head">Featured in</div>
+    {articles.length === 0 && (
+      <p class="empty">No published stories feature {r.data.firstName} yet — profiles land here as they publish.</p>
+    )}
+    {articles.map((a) => (
+      <article class="row">
+        <div>
+          <CategoryEyebrow category={a.data.category} />
+          <h2><a href={`/articles/${a.id}/`}>{a.data.title}</a></h2>
+          <div class="row-meta">By {a.data.writtenBy} · {formatDate(a.data.publishedDate)} · {minutes(a)} min</div>
+        </div>
+        <a href={`/articles/${a.id}/`} class="row-thumb" aria-hidden="true" tabindex="-1">
+          <Photo src={a.data.featuredImage} ratio="4/3" label="" />
+        </a>
+      </article>
+    ))}
+  </main>
+</Base>
+
+<style>
+  main { max-width: 820px; margin: 0 auto; padding: 48px 24px 96px; }
+  .back { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; }
+  .head { display: flex; gap: 28px; align-items: center; margin: 28px 0 12px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 46px; line-height: 1.04; color: var(--ink); margin: 6px 0; }
+  .meta { font-family: var(--font-sans); font-size: 15px; color: var(--muted); }
+  .bio { font-family: var(--font-body); font-size: 20px; line-height: 1.6; color: var(--ink); max-width: 640px; margin: 20px 0 28px; }
+  .interests { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+  .featured-head {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .empty { font-family: var(--font-body); font-size: 16px; color: var(--muted); padding: 24px 0; }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 24px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--hairline);
+    align-items: center;
+  }
+  .row h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.12; margin: 8px 0 6px; }
+  .row h2 a { color: var(--ink); text-decoration: none; }
+  .row-meta { font-family: var(--font-sans); font-size: 13px; color: var(--muted); }
+  .row-thumb { text-decoration: none; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    .head { gap: 18px; }
+    h1 { font-size: 32px; }
+    .bio { font-size: 18px; }
+  }
+</style>
