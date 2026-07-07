@@ -1,0 +1,189 @@
+---
+import Base from '../layouts/Base.astro';
+import Field from '../components/Field.astro';
+import { CATEGORY_LABELS } from '../lib/categories';
+---
+<Base title="Apply — Ashesi Research Club">
+  <main>
+    <div id="form-view">
+      <div class="eyebrow">Join the club</div>
+      <h1>Pitch your research</h1>
+      <p class="lede">Tell us about the work and why it matters. Strong pitches lead with a real-world problem.</p>
+
+      <!-- ponytail: no submission backend yet — client-side success state only; point action at a form service when the club picks one -->
+      <form id="apply" novalidate>
+        <div class="section-head"><span class="n">01</span><h2>About you</h2></div>
+        <div class="grid2">
+          <Field label="Full name" htmlFor="ap-name" required><input class="arc-input" id="ap-name" name="name" placeholder="Your name" required /></Field>
+          <Field label="Email" htmlFor="ap-email" required><input class="arc-input" id="ap-email" name="email" type="email" placeholder="you@ashesi.edu.gh" required /></Field>
+          <Field label="Phone" htmlFor="ap-phone"><input class="arc-input" id="ap-phone" name="phone" placeholder="+233…" /></Field>
+          <Field label="Program" htmlFor="ap-prog" required><input class="arc-input" id="ap-prog" name="program" placeholder="e.g. Computer Science" required /></Field>
+          <Field label="Year of study" htmlFor="ap-year"><input class="arc-input" id="ap-year" name="yearOfStudy" placeholder="e.g. Year 3" /></Field>
+          <Field label="Research advisor" htmlFor="ap-adv"><input class="arc-input" id="ap-adv" name="researchAdvisor" placeholder="Supervisor name" /></Field>
+        </div>
+
+        <div class="section-head"><span class="n">02</span><h2>The research</h2></div>
+        <div class="stack">
+          <Field label="Research title" htmlFor="ap-title" required><input class="arc-input" id="ap-title" name="researchTitle" placeholder="Working title is fine" required /></Field>
+          <div class="grid2">
+            <Field label="Category" htmlFor="ap-cat">
+              <select class="arc-input" id="ap-cat" name="researchCategory">
+                {Object.entries(CATEGORY_LABELS).map(([k, l]) => <option value={k}>{l}</option>)}
+              </select>
+            </Field>
+            <Field label="Project stage" htmlFor="ap-stage">
+              <select class="arc-input" id="ap-stage" name="projectStage">
+                <option>Idea</option><option selected>In progress</option><option>Completed</option>
+              </select>
+            </Field>
+          </div>
+          <Field label="Abstract" htmlFor="ap-abs" hint="A short summary of the work — 150–300 words." required>
+            <textarea class="arc-input" id="ap-abs" name="abstract" rows="5" placeholder="What did you investigate, and what did you find?" required></textarea>
+          </Field>
+          <Field label="Real-world impact" htmlFor="ap-impact" required>
+            <textarea class="arc-input" id="ap-impact" name="impact" rows="3" placeholder="Who benefits, and how?" required></textarea>
+          </Field>
+          <Field label="Why you want to publish" htmlFor="ap-mot">
+            <textarea class="arc-input" id="ap-mot" name="motivation" rows="3"></textarea>
+          </Field>
+          <Field label="Supporting materials" htmlFor="ap-url" hint="Link to a paper, repo, or slides.">
+            <input class="arc-input" id="ap-url" name="supportingMaterials" type="url" placeholder="https://" />
+          </Field>
+        </div>
+
+        <div class="section-head"><span class="n">03</span><h2>Consent</h2></div>
+        <div class="consent" id="consent-box">
+          <label class="check">
+            <span class="box-wrap">
+              <input type="checkbox" id="ap-consent" name="consent" />
+              <span class="box" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="square"><path d="M2 6.5 L5 9.5 L10 3"/></svg>
+              </span>
+            </span>
+            <span>I confirm the information provided is accurate and consent to being contacted by the editorial desk.</span>
+          </label>
+          <div class="c-error" id="c-error" hidden>Please confirm consent before submitting.</div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="arc-button" data-variant="primary" data-size="lg">Submit application</button>
+          <a href="/" class="arc-button" data-variant="text">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <div id="success-view" hidden>
+      <div class="tick" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><path d="M4 12.5l5 5L20 6"/></svg>
+      </div>
+      <h1>Application received</h1>
+      <p class="lede center">Thank you. The editorial desk reviews pitches on a rolling basis — expect to hear back within two weeks.</p>
+      <a href="/" class="arc-button" data-variant="secondary">Back to the magazine</a>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 680px; margin: 0 auto; padding: 48px 24px 96px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 48px; line-height: 1.05; color: var(--ink); margin: 12px 0 14px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 580px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 36px 0 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .section-head .n { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+  .section-head h2 { font-family: var(--font-display); font-weight: 400; font-size: 24px; color: var(--ink); margin: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .stack { display: flex; flex-direction: column; gap: 18px; }
+  select.arc-input { appearance: none; min-height: var(--touch-min); }
+
+  .consent { border: 1px solid var(--hairline); padding: 18px; }
+  .consent.error { border: 2px solid var(--ink); padding: 17px; }
+  .check {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .box-wrap { position: relative; flex: 0 0 auto; margin-top: 1px; }
+  .box-wrap input { position: absolute; opacity: 0; width: 18px; height: 18px; margin: 0; cursor: inherit; }
+  .box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--ink);
+    background: var(--canvas);
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .box svg { visibility: hidden; }
+  .box-wrap input:checked + .box { background: var(--ink); }
+  .box-wrap input:checked + .box svg { visibility: visible; }
+  .box-wrap input:focus-visible + .box { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+  .c-error { font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--ink); margin-top: 10px; }
+  .actions { display: flex; gap: 12px; margin-top: 28px; align-items: center; }
+
+  #success-view { text-align: center; padding: 42px 0; }
+  .tick {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }
+  #success-view h1 { font-size: 40px; }
+  .center { margin: 0 auto 28px; max-width: 480px; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    h1 { font-size: 36px; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('apply') as HTMLFormElement;
+  const consent = document.getElementById('ap-consent') as HTMLInputElement;
+  const consentBox = document.getElementById('consent-box')!;
+  const cError = document.getElementById('c-error')!;
+
+  consent.addEventListener('change', () => {
+    consentBox.classList.remove('error');
+    cError.setAttribute('hidden', '');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    if (!consent.checked) {
+      consentBox.classList.add('error');
+      cError.removeAttribute('hidden');
+      consentBox.scrollIntoView({ block: 'center' });
+      return;
+    }
+    document.getElementById('form-view')!.setAttribute('hidden', '');
+    document.getElementById('success-view')!.removeAttribute('hidden');
+    window.scrollTo(0, 0);
+  });
+</script>
