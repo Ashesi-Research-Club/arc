@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Avatar from '../components/Avatar.astro';
+
+const team = (await getCollection('team', ({ data }) => data.isActive)).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+<Base title="Team — Ashesi Research Club">
+  <main>
+    <div class="eyebrow">The masthead</div>
+    <h1>Who runs the Club</h1>
+    <p class="lede">The editorial desk — students who commission, write, fact-check, and design every profile.</p>
+    <div class="roster">
+      {team.map((m, i) => (
+        <div>
+          {i > 0 && <hr class="arc-rule" />}
+          <div class="member">
+            <Avatar name={m.data.name} size={64} />
+            <div>
+              <div class="name">{m.data.name}</div>
+              <div class="role">{m.data.role}</div>
+              <div class="desc">{m.data.description}</div>
+            </div>
+            <div class="side">
+              <div class="spec">{m.data.specialization}</div>
+              <div class="year">{m.data.year}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1.04; color: var(--ink); margin: 12px 0 8px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 600px; margin-bottom: 8px; }
+  .roster { margin-top: 40px; }
+  .member { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; padding: 24px 0; }
+  .name { font-family: var(--font-display); font-size: 24px; color: var(--ink); line-height: 1.1; }
+  .role { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin: 4px 0 8px; }
+  .desc { font-family: var(--font-body); font-size: 15px; color: var(--muted); max-width: 460px; }
+  .side { text-align: right; font-family: var(--font-sans); font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .spec { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--ink); }
+  .year { margin-top: 4px; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    h1 { font-size: 38px; }
+    .member { grid-template-columns: auto 1fr; }
+    .side { grid-column: 2; text-align: left; }
+  }
+</style>
