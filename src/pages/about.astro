@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="About — Ashesi Research Club">
+  <main>
+    <div class="eyebrow">The club</div>
+    <h1>Research, told as a magazine</h1>
+    <p class="standfirst">
+      The Ashesi Research Club exists to make student and faculty research impossible to ignore —
+      one profile, one finding, one story at a time.
+    </p>
+    <div class="prose">
+      <p>
+        Great research happens at Ashesi every semester, and most of it is only ever read by a
+        supervisor and a grading panel. The club was founded to change that: we find the work,
+        interview the people behind it, and publish it the way a magazine would — with real
+        headlines, real narrative, and respect for the reader's time.
+      </p>
+      <h2>What we do</h2>
+      <p>
+        The editorial desk commissions and writes researcher profiles, from signal-processing
+        algorithms that work where GPS fails to vision-language models built for healthcare in
+        Ghana. Every story is fact-checked with the researcher and edited for a general reader —
+        no jargon walls, no abstracts pasted into paragraphs.
+      </p>
+      <h2>Why a magazine</h2>
+      <p>
+        Because stories travel further than papers. A well-told profile brings a researcher's work
+        to classmates, future collaborators, and funders who would never open a journal PDF. The
+        black-on-white pages you're reading are deliberate: fast, calm, and about the work.
+      </p>
+      <h2>Get involved</h2>
+      <p>
+        If you're researching something worth telling — or you want to write, edit, or design for
+        the desk — <a href="/apply/">pitch it to the club</a>. We review applications on a rolling
+        basis.
+      </p>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: var(--reading-max); margin: 0 auto; padding: 48px 24px 96px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 48px; line-height: 1.05; color: var(--ink); margin: 12px 0 20px; }
+  .standfirst {
+    font-family: var(--font-body);
+    font-size: 21px;
+    line-height: var(--body-line-tight);
+    font-style: italic;
+    color: var(--ink);
+    margin: 0 0 26px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    h1 { font-size: 36px; }
+  }
+</style>
