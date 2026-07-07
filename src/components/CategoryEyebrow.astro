@@ -1,0 +1,27 @@
+---
+import { label } from '../lib/categories';
+
+interface Props { category: string; showDot?: boolean; link?: boolean }
+const { category, showDot = false, link = true } = Astro.props;
+const Tag = link ? 'a' : 'span';
+---
+<Tag class="arc-eyebrow-cat" href={link ? `/category/${category}/` : undefined}>
+  {showDot && <span class="dot" aria-hidden="true" style={`background:var(--cat-${category}, var(--ink))`} />}
+  {label(category)}
+</Tag>
+
+<style>
+  .arc-eyebrow-cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    font-size: var(--sans-label);
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .dot { width: 7px; height: 7px; border-radius: var(--radius-full); flex: 0 0 auto; }
+</style>

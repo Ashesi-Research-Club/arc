@@ -1,0 +1,42 @@
+---
+/* Photo — image slot with the designed placeholder for missing imagery. */
+interface Props { src?: string; alt?: string; ratio?: string; label?: string; tone?: 'light' | 'dark' }
+const { src, alt = '', ratio = '16/9', label = 'Photograph', tone = 'light' } = Astro.props;
+---
+{src ? (
+  <img src={src} alt={alt} style={`aspect-ratio:${ratio};width:100%;object-fit:cover`} />
+) : (
+  <div class="ph" data-tone={tone} style={`aspect-ratio:${ratio}`}>
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke-width="1.2">
+      <rect x="3" y="4" width="18" height="16" /><circle cx="9" cy="10" r="2" /><path d="M3 17l5-4 4 3 3-3 6 5" />
+    </svg>
+    <span class="tag">{label}</span>
+  </div>
+)}
+
+<style>
+  .ph {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #ebe9e4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ph[data-tone='dark'] { background: #1a1a1a; }
+  .ph svg { stroke: #a59f93; }
+  .ph[data-tone='dark'] svg { stroke: #777; }
+  .tag {
+    position: absolute;
+    left: 10px;
+    bottom: 8px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #a59f93;
+  }
+  .ph[data-tone='dark'] .tag { color: #777; }
+</style>

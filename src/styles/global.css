@@ -350,6 +350,42 @@ textarea.arc-input { resize: vertical; line-height: 1.5; }
 .arc-iconbtn:focus-visible,
 .arc-pill:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 
+/* ---- Reading column prose (article body & long-form pages) ---- */
+.prose { font-family: var(--font-body); color: var(--ink); }
+.prose p { font-size: var(--body-base); line-height: var(--body-line); margin: 0 0 22px; }
+.prose > p:first-child { font-size: var(--body-lead); }
+.prose h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.12;
+  margin: 40px 0 18px;
+}
+.prose h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 1.15;
+  margin: 32px 0 14px;
+}
+.prose blockquote {
+  margin: 0 0 22px;
+  padding-left: 20px;
+  border-left: 2px solid var(--ink);
+  font-size: 18px;
+  line-height: 1.55;
+  font-style: italic;
+}
+.prose blockquote p { margin: 0; font-size: inherit; }
+.prose a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.prose a:hover { color: var(--link-hover); }
+.prose img { width: 100%; }
+.prose figcaption { font-family: var(--font-sans); font-size: 13px; color: var(--muted); margin-top: 8px; }
+.prose ul, .prose ol { font-size: var(--body-base); line-height: var(--body-line); padding-left: 22px; margin: 0 0 22px; }
+
+/* Glossary term (slot) — native title tooltip carries the definition for now */
+.arc-glossary { border-bottom: 1px dotted var(--ink); cursor: help; }
+
 /* ---- Featured-moment reveal (home cover, article hero) ---- */
 .arc-reveal { animation: arcRise var(--dur-slow) var(--ease-out) both; }
 @keyframes arcRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }

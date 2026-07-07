@@ -1,0 +1,28 @@
+---
+import Avatar from './Avatar.astro';
+
+interface Props {
+  writer: string;
+  writerHref?: string;
+  avatarSrc?: string;
+  date?: string;
+  readTime?: number;
+  size?: 'sm' | 'md';
+}
+const { writer, writerHref, avatarSrc, date, readTime, size = 'md' } = Astro.props;
+---
+<div class="arc-byline" data-size={size}>
+  <Avatar src={avatarSrc} name={writer} size={size === 'sm' ? 28 : 40} />
+  <div class="meta">
+    <span>By </span>{writerHref ? <a href={writerHref}>{writer}</a> : <span class="writer">{writer}</span>}
+    {date && <span> · {date}</span>}
+    {readTime && <span> · {readTime} min read</span>}
+  </div>
+</div>
+
+<style>
+  .arc-byline { display: flex; align-items: center; gap: 12px; }
+  .meta { font-family: var(--font-sans); font-size: 14px; color: var(--muted); line-height: 1.35; }
+  .arc-byline[data-size='sm'] .meta { font-size: 13px; }
+  .meta a, .meta .writer { color: var(--ink); font-weight: 600; text-decoration: none; }
+</style>

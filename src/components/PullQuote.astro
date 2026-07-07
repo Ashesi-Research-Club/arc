@@ -1,0 +1,35 @@
+---
+interface Props { cite?: string }
+const { cite } = Astro.props;
+---
+<figure class="arc-pullquote">
+  <blockquote><slot /></blockquote>
+  {cite && <figcaption>{cite}</figcaption>}
+</figure>
+
+<style>
+  .arc-pullquote {
+    margin: 36px 0;
+    padding: 28px 0;
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  figcaption {
+    margin-top: 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>

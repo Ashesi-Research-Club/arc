@@ -1,0 +1,64 @@
+---
+/* Inline comprehension check — tap an answer, correct one reveals in ink. */
+interface Props { question: string; options: string[]; correct: number }
+const { question, options, correct } = Astro.props;
+---
+<div class="arc-checkpoint" data-correct={correct}>
+  <div class="eyebrow">Checkpoint</div>
+  <div class="q">{question}</div>
+  <div class="opts">
+    {options.map((o, i) => (
+      <button type="button" data-i={i}>{o}</button>
+    ))}
+  </div>
+</div>
+
+<style>
+  .arc-checkpoint { border: 1px solid var(--ink); padding: 20px; margin: 8px 0 26px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .q { font-family: var(--font-body); font-size: 17px; color: var(--ink); margin-bottom: 14px; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  button {
+    text-align: left;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border: 1px solid var(--hairline);
+    background: transparent;
+    color: var(--ink);
+    min-height: var(--touch-min);
+  }
+  .arc-checkpoint[data-revealed] button[data-good] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fff;
+    font-weight: 600;
+  }
+  .arc-checkpoint[data-revealed] button[data-picked]:not([data-good]) { border-color: var(--ink); }
+</style>
+
+<script>
+  document.querySelectorAll('.arc-checkpoint').forEach((box) => {
+    const correct = Number((box as HTMLElement).dataset.correct);
+    box.querySelectorAll('button').forEach((btn, i) => {
+      btn.addEventListener('click', () => {
+        if (box.hasAttribute('data-revealed')) return;
+        box.setAttribute('data-revealed', '');
+        btn.setAttribute('data-picked', '');
+        const good = box.querySelector(`button[data-i="${correct}"]`);
+        good?.setAttribute('data-good', '');
+        good!.textContent += '  ✓';
+        if (i !== correct) btn.textContent += '  ✕';
+      });
+    });
+  });
+</script>

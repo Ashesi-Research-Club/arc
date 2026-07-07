@@ -1,0 +1,58 @@
+---
+/* StoryRow — the archive/category list row: thumb + eyebrow + headline + excerpt + meta. */
+import CategoryEyebrow from './CategoryEyebrow.astro';
+import Photo from './Photo.astro';
+import { label } from '../lib/categories';
+
+interface Props {
+  href: string;
+  title: string;
+  category: string;
+  excerpt?: string;
+  writtenBy: string;
+  date: string;
+  readTime: number;
+  image?: string;
+}
+const { href, title, category, excerpt, writtenBy, date, readTime, image } = Astro.props;
+---
+<article class="story-row">
+  <a href={href} class="thumb" aria-hidden="true" tabindex="-1">
+    <Photo src={image} ratio="4/3" label={label(category)} />
+  </a>
+  <div>
+    <CategoryEyebrow category={category} />
+    <h2><a href={href}>{title}</a></h2>
+    {excerpt && <p>{excerpt}</p>}
+    <div class="meta">By {writtenBy} · {date} · {readTime} min read</div>
+  </div>
+</article>
+
+<style>
+  .story-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 28px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--hairline);
+    align-items: center;
+  }
+  .thumb { text-decoration: none; }
+  h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; line-height: 1.1; margin: 8px 0; }
+  h2 a { color: var(--ink); text-decoration: none; }
+  p {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ink);
+    margin: 0 0 12px;
+    max-width: 620px;
+  }
+  .meta { font-family: var(--font-sans); font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 767px) {
+    .story-row { grid-template-columns: 110px 1fr; gap: 16px; align-items: start; }
+    h2 { font-size: 21px; }
+    p { display: none; }
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+interface Props { title?: string; variant?: 'note' | 'tldr' | 'aside' | 'checkpoint' }
+const { title, variant = 'note' } = Astro.props;
+---
+<aside class="arc-callout" data-variant={variant}>
+  {title && <div class="head">{title}</div>}
+  <div class="body"><slot /></div>
+</aside>
+
+<style>
+  .arc-callout { margin: 28px 0; padding: 20px 22px; border-radius: var(--radius-none); }
+  .arc-callout[data-variant='note'] { border: 1px solid var(--hairline); background: var(--canvas); }
+  .arc-callout[data-variant='tldr'] { border: 1px solid var(--ink); background: var(--tint-paper); }
+  .arc-callout[data-variant='checkpoint'] { border: 1px solid var(--ink); background: var(--canvas); }
+  .arc-callout[data-variant='aside'] {
+    border-left: 2px solid var(--ink);
+    background: transparent;
+    padding: 4px 0 4px 20px;
+  }
+  .head {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .body { font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--ink); }
+  .arc-callout[data-variant='aside'] .body {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-style: italic;
+    line-height: 1.35;
+  }
+  .body :global(ul) { margin: 0; padding-left: 18px; }
+  .body :global(dt) { font-weight: 600; }
+  .body :global(dd) { margin: 2px 0 14px; color: var(--muted); }
+  .body :global(dd:last-child) { margin-bottom: 0; }
+  .body :global(p) { margin: 0; }
+</style>
