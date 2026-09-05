@@ -1,0 +1,26 @@
+---
+// ArcLogo.astro — Responsive logo component using public/arc.svg representing Ashesi Research Club
+---
+
+<img
+  src="/arc.svg"
+  alt="Ashesi Research Club"
+  class="arc-logo"
+  width="52"
+  height="52"
+/>
+
+<style>
+  .arc-logo {
+    display: block;
+    margin: 0;
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+  }
+  @media (max-width: 767px) {
+    .arc-logo {
+      height: 40px;
+    }
+  }
+</style>
