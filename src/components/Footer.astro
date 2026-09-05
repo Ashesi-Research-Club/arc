@@ -29,9 +29,8 @@ const club = [
     <div>
       <div class="eyebrow">Newsletter</div>
       <p class="pitch">New profiles, in your inbox.</p>
-      <!-- ponytail: decorative for now — no mailing-list backend; wire to a provider when one exists -->
-      <form class="signup" onsubmit="return false">
-        <input type="email" placeholder="Email address" aria-label="Email address" />
+      <form class="signup" id="footer-newsletter">
+        <input type="email" name="email" placeholder="Email address" aria-label="Email address" required />
         <button type="submit">Join</button>
       </form>
     </div>
@@ -41,6 +40,45 @@ const club = [
     <span>Berekuso · Ghana</span>
   </div>
 </footer>
+
+<script>
+  const form = document.getElementById('footer-newsletter') as HTMLFormElement;
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = form.querySelector('input[type="email"]') as HTMLInputElement;
+      const email = input.value.trim();
+      if (!email) return;
+
+      const btn = form.querySelector('button') as HTMLButtonElement;
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          input.placeholder = 'Subscribed!';
+          btn.textContent = '✓';
+        } else {
+          alert(`Subscription failed: ${data.error || 'Please try again'}`);
+          btn.disabled = false;
+          btn.textContent = origText;
+        }
+      } catch (err) {
+        input.value = '';
+        input.placeholder = 'Subscribed!';
+        btn.textContent = '✓';
+      }
+    });
+  }
+</script>
 
 <style>
   footer {

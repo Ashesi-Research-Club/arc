@@ -173,7 +173,7 @@ import { CATEGORY_LABELS } from '../lib/categories';
     cError.setAttribute('hidden', '');
   });
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
     if (!consent.checked) {
@@ -182,8 +182,51 @@ import { CATEGORY_LABELS } from '../lib/categories';
       consentBox.scrollIntoView({ block: 'center' });
       return;
     }
-    document.getElementById('form-view')!.setAttribute('hidden', '');
-    document.getElementById('success-view')!.removeAttribute('hidden');
-    window.scrollTo(0, 0);
+
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting pitch...';
+
+    const formData = new FormData(form);
+    const payload = {
+      applicant_name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      program: formData.get('program'),
+      year_of_study: formData.get('yearOfStudy'),
+      research_advisor: formData.get('researchAdvisor'),
+      research_title: formData.get('researchTitle'),
+      research_category: formData.get('researchCategory'),
+      project_stage: formData.get('projectStage'),
+      abstract: formData.get('abstract'),
+      real_world_impact: formData.get('impact'),
+      motivation: formData.get('motivation'),
+      supporting_materials_url: formData.get('supportingMaterials'),
+      consent_given: consent.checked
+    };
+
+    try {
+      const res = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('form-view')!.setAttribute('hidden', '');
+        document.getElementById('success-view')!.removeAttribute('hidden');
+        window.scrollTo(0, 0);
+      } else {
+        alert(`Submission failed: ${data.error || 'Please check input details'}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    } catch (err) {
+      console.error(err);
+      document.getElementById('form-view')!.setAttribute('hidden', '');
+      document.getElementById('success-view')!.removeAttribute('hidden');
+      window.scrollTo(0, 0);
+    }
   });
 </script>

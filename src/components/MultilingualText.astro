@@ -1,0 +1,94 @@
+---
+interface Props {
+  english: string;
+  twi?: string;
+  french?: string;
+}
+
+const { english, twi, french } = Astro.props;
+---
+
+<div class="arc-multilingual">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-lang="en">English</button>
+    {twi && <button class="tab-btn" data-lang="tw">Twi</button>}
+    {french && <button class="tab-btn" data-lang="fr">Français</button>}
+  </div>
+
+  <div class="lang-content active" data-content="en">
+    <p>{english}</p>
+  </div>
+  {twi && (
+    <div class="lang-content" data-content="tw" style="display: none;">
+      <p>{twi}</p>
+    </div>
+  )}
+  {french && (
+    <div class="lang-content" data-content="fr" style="display: none;">
+      <p>{french}</p>
+    </div>
+  )}
+</div>
+
+<style>
+  .arc-multilingual {
+    border: 1px solid var(--hairline);
+    padding: 18px;
+    margin: 24px 0;
+    background: #fff;
+  }
+  .tab-bar {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--hairline);
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .tab-btn {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tab-btn.active {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: #f5f5f5;
+  }
+  .lang-content p {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.arc-multilingual').forEach(container => {
+    const btns = container.querySelectorAll('.tab-btn');
+    const contents = container.querySelectorAll('.lang-content');
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang');
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        contents.forEach(c => {
+          if (c.getAttribute('data-content') === lang) {
+            (c as HTMLElement).style.display = 'block';
+          } else {
+            (c as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>

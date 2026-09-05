@@ -1,31 +1,34 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Byline from '../components/Byline.astro';
 import CategoryEyebrow from '../components/CategoryEyebrow.astro';
 import Avatar from '../components/Avatar.astro';
 import Photo from '../components/Photo.astro';
 import { label } from '../lib/categories';
-import { publishedArticles, formatDate, minutes } from '../lib/articles';
+import { formatDate, minutes } from '../lib/articles';
+import { getArticles, getResearchers } from '../lib/supabase';
 
-const articles = await publishedArticles();
-const cover = articles.find((a) => a.data.featured) ?? articles[0];
+export const prerender = false;
+
+const articles = await getArticles();
+const cover = articles.find((a) => a.featured) ?? articles[0];
 const secondary = articles.filter((a) => a.id !== cover?.id);
-const researchers = await getCollection('researchers', ({ data }) => data.status === 'active');
+const researchers = await getResearchers();
 ---
+
 <Base>
   <main>
     {cover && (
       <article class="cover arc-reveal">
-        <a href={`/articles/${cover.id}/`} class="cover-media">
-          <Photo src={cover.data.featuredImage} ratio="16/9" label={`Cover · ${label(cover.data.category)}`} />
+        <a href={`/articles/${cover.slug}/`} class="cover-media">
+          <Photo src={cover.featured_image} ratio="16/9" label={`Cover · ${label(cover.category_id)}`} />
         </a>
         <div class="cover-text">
-          <CategoryEyebrow category={cover.data.category} />
-          <h1><a href={`/articles/${cover.id}/`}>{cover.data.title}</a></h1>
-          <p>{cover.data.excerpt}</p>
+          <CategoryEyebrow category={cover.category_id} />
+          <h1><a href={`/articles/${cover.slug}/`}>{cover.title}</a></h1>
+          <p>{cover.excerpt}</p>
           <div class="cover-byline">
-            <Byline writer={cover.data.writtenBy} date={formatDate(cover.data.publishedDate)} readTime={minutes(cover)} />
+            <Byline writer={cover.written_by} date={formatDate(cover.published_date)} readTime={minutes(cover)} />
           </div>
         </div>
       </article>
@@ -41,15 +44,15 @@ const researchers = await getCollection('researchers', ({ data }) => data.status
         )}
         {secondary.map((a) => (
           <article class="secondary">
-            <a href={`/articles/${a.id}/`} aria-hidden="true" tabindex="-1">
-              <Photo src={a.data.featuredImage} ratio="4/3" label={label(a.data.category)} />
+            <a href={`/articles/${a.slug}/`} aria-hidden="true" tabindex="-1">
+              <Photo src={a.featured_image} ratio="4/3" label={label(a.category_id)} />
             </a>
             <div>
-              <CategoryEyebrow category={a.data.category} />
-              <h2><a href={`/articles/${a.id}/`}>{a.data.title}</a></h2>
-              <p>{a.data.excerpt}</p>
+              <CategoryEyebrow category={a.category_id} />
+              <h2><a href={`/articles/${a.slug}/`}>{a.title}</a></h2>
+              <p>{a.excerpt}</p>
               <div class="sec-byline">
-                <Byline writer={a.data.writtenBy} date={formatDate(a.data.publishedDate)} readTime={minutes(a)} size="sm" />
+                <Byline writer={a.written_by} date={formatDate(a.published_date)} readTime={minutes(a)} size="sm" />
               </div>
             </div>
           </article>
@@ -60,11 +63,11 @@ const researchers = await getCollection('researchers', ({ data }) => data.status
         <div class="col-head">Profiled researchers</div>
         {researchers.map((p, i) => (
           <div>
-            <a href={`/researchers/${p.id}/`} class="rail-person">
-              <Avatar name={p.data.name} src={p.data.avatar} size={48} />
+            <a href={`/researchers/${p.slug}/`} class="rail-person">
+              <Avatar name={p.full_name} src={p.avatar_url} size={48} />
               <span>
-                <span class="rail-name">{p.data.name}</span>
-                <span class="rail-meta">{p.data.program} · {p.data.yearOfStudy}</span>
+                <span class="rail-name">{p.full_name}</span>
+                <span class="rail-meta">{p.program} · {p.year_of_study}</span>
               </span>
             </a>
             {i < researchers.length - 1 && <hr class="arc-rule rail-rule" />}

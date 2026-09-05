@@ -1,0 +1,73 @@
+---
+import PullQuote from './PullQuote.astro';
+import Checkpoint from './Checkpoint.astro';
+import CodeBlock from './CodeBlock.astro';
+import type { ArticleBlock } from '../lib/supabase';
+
+interface Props {
+  blocks: ArticleBlock[];
+}
+
+const { blocks } = Astro.props;
+---
+
+<div class="article-blocks">
+  {blocks.map((block) => {
+    switch (block.block_type) {
+      case 'heading':
+        if (block.data.level === 3) {
+          return <h3 id={`heading-${block.order_index}`}>{block.data.text}</h3>;
+        }
+        return <h2 id={`heading-${block.order_index}`}>{block.data.text}</h2>;
+      
+      case 'pullquote':
+        return <PullQuote cite={block.data.cite}>{block.data.quote}</PullQuote>;
+      
+      case 'checkpoint':
+        return (
+          <Checkpoint
+            question={block.data.question}
+            options={block.data.options}
+            correct={block.data.correct}
+          />
+        );
+      
+      case 'code':
+        return <CodeBlock lang={block.data.lang || 'python'}>{block.data.code}</CodeBlock>;
+      
+      case 'paragraph':
+      default:
+        return <p class="block-p">{block.data.text}</p>;
+    }
+  })}
+</div>
+
+<style>
+  .article-blocks {
+    display: flex;
+    flex-direction: column;
+  }
+  .block-p {
+    font-family: var(--font-body);
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 40px 0 16px;
+    line-height: 1.15;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 32px 0 12px;
+    line-height: 1.2;
+  }
+</style>

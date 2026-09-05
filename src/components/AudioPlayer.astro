@@ -1,0 +1,81 @@
+---
+interface Props {
+  title: string;
+  audioUrl: string;
+  duration?: string;
+}
+
+const { title, audioUrl, duration = "03:45" } = Astro.props;
+---
+
+<div class="arc-audio-player">
+  <div class="audio-header">
+    <div class="audio-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+      </svg>
+    </div>
+    <div class="audio-info">
+      <div class="audio-label">LISTEN TO RESEARCH BRIEF</div>
+      <div class="audio-title">{title}</div>
+    </div>
+    <div class="audio-duration">{duration}</div>
+  </div>
+
+  <audio controls class="audio-control">
+    <source src={audioUrl} type="audio/mpeg" />
+    Your browser does not support the audio element.
+  </audio>
+</div>
+
+<style>
+  .arc-audio-player {
+    border: 1px solid var(--ink);
+    padding: 16px 20px;
+    margin: 24px 0;
+    background: #fafafa;
+  }
+  .audio-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .audio-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+  }
+  .audio-info { flex: 1; }
+  .audio-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .audio-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .audio-duration {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .audio-control {
+    width: 100%;
+    height: 36px;
+    outline: none;
+  }
+</style>

@@ -2,19 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import StoryRow from '../../components/StoryRow.astro';
 import { CATEGORY_LABELS } from '../../lib/categories';
-import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+import { formatDate, minutes } from '../../lib/articles';
+import { getArticles } from '../../lib/supabase';
 
-export async function getStaticPaths() {
-  const articles = await publishedArticles();
-  return Object.keys(CATEGORY_LABELS).map((category) => ({
-    params: { category },
-    props: { articles: articles.filter((a) => a.data.category === category) },
-  }));
-}
+export const prerender = false;
 
 const { category } = Astro.params;
-const { articles } = Astro.props;
-const title = CATEGORY_LABELS[category!];
+const articles = await getArticles(category);
+const title = CATEGORY_LABELS[category!] || category;
 ---
 <Base title={`${title} — Ashesi Research Club`}>
   <main>
@@ -29,14 +24,14 @@ const title = CATEGORY_LABELS[category!];
     ) : (
       articles.map((a) => (
         <StoryRow
-          href={`/articles/${a.id}/`}
-          title={a.data.title}
-          category={a.data.category}
-          excerpt={a.data.excerpt}
-          writtenBy={a.data.writtenBy}
-          date={formatDate(a.data.publishedDate)}
+          href={`/articles/${a.slug}/`}
+          title={a.title}
+          category={a.category_id}
+          excerpt={a.excerpt}
+          writtenBy={a.written_by}
+          date={formatDate(a.published_date)}
           readTime={minutes(a)}
-          image={a.data.featuredImage}
+          image={a.featured_image}
         />
       ))
     )}

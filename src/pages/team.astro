@@ -1,31 +1,57 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Avatar from '../components/Avatar.astro';
+import { getAcademicSessions, getTeamBySession } from '../lib/supabase';
 
-const team = (await getCollection('team', ({ data }) => data.isActive)).sort(
-  (a, b) => a.data.order - b.data.order
-);
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const currentSessionId = url.searchParams.get('session') || undefined;
+
+const sessions = await getAcademicSessions();
+const { session: activeSession, members } = await getTeamBySession(currentSessionId);
 ---
-<Base title="Team — Ashesi Research Club">
+
+<Base title={`Team ${activeSession.session_label} — Ashesi Research Club`}>
   <main>
-    <div class="eyebrow">The masthead</div>
-    <h1>Who runs the Club</h1>
-    <p class="lede">The editorial desk — students who commission, write, fact-check, and design every profile.</p>
+    <div class="header-row">
+      <div>
+        <div class="eyebrow">The masthead</div>
+        <h1>Who runs the Club</h1>
+        <p class="lede">The executive board & editorial desk — leaders and students who commission, write, fact-check, and design every profile.</p>
+      </div>
+
+      <div class="archive-box">
+        <label for="session-select" class="archive-label">Academic Session Archive</label>
+        <select id="session-select" class="session-dropdown">
+          {sessions.map((s) => (
+            <option value={s.id} selected={s.id === activeSession.id}>
+              {s.session_label} {s.is_current ? '(Current Active)' : '(Archive)'}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div class="session-badge">
+      Showing Executive Board for <strong>{activeSession.session_label}</strong>
+      {activeSession.is_current && <span class="badge-active">ACTIVE TERM</span>}
+    </div>
+
     <div class="roster">
-      {team.map((m, i) => (
+      {members.map((m, i) => (
         <div>
           {i > 0 && <hr class="arc-rule" />}
           <div class="member">
-            <Avatar name={m.data.name} size={64} />
+            <Avatar name={m.name} size={64} />
             <div>
-              <div class="name">{m.data.name}</div>
-              <div class="role">{m.data.role}</div>
-              <div class="desc">{m.data.description}</div>
+              <div class="name">{m.name}</div>
+              <div class="role">{m.role}</div>
+              <div class="desc">{m.description}</div>
             </div>
             <div class="side">
-              <div class="spec">{m.data.specialization}</div>
-              <div class="year">{m.data.year}</div>
+              <div class="spec">{m.specialization}</div>
+              <div class="year">{m.year_of_study}</div>
             </div>
           </div>
         </div>
@@ -36,6 +62,15 @@ const team = (await getCollection('team', ({ data }) => data.isActive)).sort(
 
 <style>
   main { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+  
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
   .eyebrow {
     font-family: var(--font-sans);
     font-size: 13px;
@@ -44,9 +79,61 @@ const team = (await getCollection('team', ({ data }) => data.isActive)).sort(
     text-transform: uppercase;
     color: var(--muted);
   }
+  
   h1 { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1.04; color: var(--ink); margin: 12px 0 8px; }
-  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 600px; margin-bottom: 8px; }
-  .roster { margin-top: 40px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 540px; }
+
+  .archive-box {
+    border: 1px solid var(--ink);
+    padding: 16px;
+    background: #fafafa;
+    min-width: 240px;
+    margin-top: 12px;
+  }
+  .archive-label {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .session-dropdown {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 10px;
+    border: 1px solid var(--ink);
+    background: var(--canvas);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .session-badge {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--muted);
+    padding: 10px 14px;
+    background: #f4f4f4;
+    border-left: 3px solid var(--ink);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-active {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background: var(--ink);
+    color: #fff;
+    padding: 2px 6px;
+  }
+
+  .roster { margin-top: 16px; }
   .member { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center; padding: 24px 0; }
   .name { font-family: var(--font-display); font-size: 24px; color: var(--ink); line-height: 1.1; }
   .role { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin: 4px 0 8px; }
@@ -57,8 +144,23 @@ const team = (await getCollection('team', ({ data }) => data.isActive)).sort(
 
   @media (max-width: 767px) {
     main { padding: 32px 20px 72px; }
+    .header-row { flex-direction: column; }
+    .archive-box { width: 100%; }
     h1 { font-size: 38px; }
     .member { grid-template-columns: auto 1fr; }
     .side { grid-column: 2; text-align: left; }
   }
 </style>
+
+<script>
+  const dropdown = document.getElementById('session-select') as HTMLSelectElement;
+  if (dropdown) {
+    dropdown.addEventListener('change', (e) => {
+      const target = e.target as HTMLSelectElement;
+      const val = target.value;
+      const url = new URL(window.location.href);
+      url.searchParams.set('session', val);
+      window.location.href = url.toString();
+    });
+  }
+</script>

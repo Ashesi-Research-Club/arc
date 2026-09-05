@@ -1,67 +1,106 @@
 ---
-import { getEntry, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Byline from '../../components/Byline.astro';
 import CategoryEyebrow from '../../components/CategoryEyebrow.astro';
 import Avatar from '../../components/Avatar.astro';
 import Photo from '../../components/Photo.astro';
-import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+import BlockRenderer from '../../components/BlockRenderer.astro';
+import { getArticleBySlug } from '../../lib/supabase';
+import { getEntry, render } from 'astro:content';
 
-export async function getStaticPaths() {
-  const articles = await publishedArticles();
-  return articles.map((a) => ({ params: { slug: a.id }, props: { article: a } }));
+export const prerender = false;
+
+const { slug } = Astro.params;
+const article = await getArticleBySlug(slug as string);
+
+if (!article) {
+  return Astro.redirect('/404');
 }
 
-const { article } = Astro.props;
-const { Content } = await render(article);
-const researcher = await getEntry(article.data.researcher);
-const mins = minutes(article);
+// Check if content is dynamic blocks or fallback MDX entry
+let MdxContent = null;
+let researcherData = article.researcher;
+
+if (!researcherData && article.researcher_id) {
+  const entry = await getEntry('researchers', article.researcher_id as any);
+  if (entry) {
+    researcherData = {
+      id: entry.id,
+      slug: entry.id,
+      full_name: entry.data.name,
+      program: entry.data.program,
+      year_of_study: entry.data.yearOfStudy,
+      bio: entry.data.bio,
+      avatar_url: entry.data.avatar,
+      interests: entry.data.interests,
+      status: 'active'
+    };
+  }
+}
+
+// Fallback MDX render if no JSONB blocks exist
+if (!article.blocks || article.blocks.length === 0) {
+  const mdxEntry = await getEntry('articles', slug as any);
+  if (mdxEntry) {
+    const rendered = await render(mdxEntry);
+    MdxContent = rendered.Content;
+  }
+}
+
+const readMins = Math.max(3, Math.ceil((article.excerpt?.length || 200) / 100));
 const finePrint = [
-  article.data.collaborators && `Collaborators: ${article.data.collaborators}`,
-  article.data.fundingSource && `Funding: ${article.data.fundingSource}`,
+  article.collaborators && `Collaborators: ${article.collaborators}`,
+  article.funding_source && `Funding: ${article.funding_source}`,
 ]
   .filter(Boolean)
   .join(' · ');
 ---
-<Base title={`${article.data.title} — Ashesi Research Club`} description={article.data.excerpt}>
+
+<Base title={`${article.title} — Ashesi Research Club`} description={article.excerpt}>
   <div class="progress" aria-hidden="true"><div class="bar"></div></div>
 
   <main>
     <div class="head-row">
-      <CategoryEyebrow category={article.data.category} />
-      <!-- Language switcher (slot) — EN only today; FR/Twi are layout-ready -->
+      <CategoryEyebrow category={article.category_id} />
+      <!-- Language switcher header toggle — EN default; FR & Twi on backlog -->
       <div class="langs" aria-label="Article language">
         <span class="on">EN</span><span>FR</span><span>Twi</span>
       </div>
     </div>
 
-    <h1>{article.data.title}</h1>
-    <p class="standfirst">{article.data.excerpt}</p>
+    <h1>{article.title}</h1>
+    <p class="standfirst">{article.excerpt}</p>
 
     <div class="byline-row">
       <Byline
-        writer={article.data.writtenBy}
-        date={formatDate(article.data.publishedDate)}
-        readTime={mins}
+        writer={article.written_by}
+        date={article.published_date}
+        readTime={readMins}
       />
       <div class="tools">
-        <button class="arc-iconbtn listen" data-shape="circle" data-variant="outline" aria-label="Listen to this article" aria-expanded="false">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg>
-        </button>
+        {article.audio_url && (
+          <button class="arc-iconbtn listen" data-shape="circle" data-variant="outline" aria-label="Listen to this article" aria-expanded="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l11-7z"/></svg>
+          </button>
+        )}
         <button class="arc-iconbtn settings" data-shape="circle" data-variant="outline" aria-label="Reader settings" aria-expanded="false">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 7h10M5 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0M15 17h4M5 17h6M15 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0M19 7h-2"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- Audio version (slot) — designed playing state; no audio yet -->
-    <div class="player" hidden>
-      <span class="arc-iconbtn" data-shape="circle" data-variant="filled" style="width:36px;height:36px"><span style="font-size:11px">❚❚</span></span>
-      <div class="track"><div style="width:34%"></div></div>
-      <span class="time">0:00 / {mins}:00</span>
-    </div>
+    <!-- Audio Player scaffold — only renders if article has audio_url -->
+    {article.audio_url && (
+      <div class="player" hidden>
+        <audio id="article-audio" src={article.audio_url} preload="metadata"></audio>
+        <button type="button" class="arc-iconbtn play-audio-btn" data-shape="circle" data-variant="filled" style="width:36px;height:36px" aria-label="Play or pause audio">
+          <span class="play-icon" style="font-size:11px">▶</span>
+        </button>
+        <div class="track"><div class="track-progress" style="width:0%"></div></div>
+        <span class="time"><span class="current-time">0:00</span> / {article.audio_duration || `${readMins}:00`}</span>
+      </div>
+    )}
 
-    <!-- Reader settings (slot) — panel designed; controls arrive with the reading preferences build -->
     <div class="settings-panel" hidden>
       <div class="panel-head">Reader settings</div>
       {[
@@ -80,35 +119,45 @@ const finePrint = [
       ))}
     </div>
 
-    <figure class="hero arc-reveal">
-      <Photo src={article.data.featuredImage} ratio="16/9" label="Featured image" />
-      <figcaption>
-        {researcher.data.name} — {researcher.data.program}. Photograph for the Ashesi Research Club.
-      </figcaption>
-    </figure>
+    {article.featured_image && (
+      <figure class="hero arc-reveal">
+        <Photo src={article.featured_image} ratio="16/9" label="Featured image" />
+        <figcaption>
+          {researcherData?.full_name} — {researcherData?.program}. Photograph for the Ashesi Research Club.
+        </figcaption>
+      </figure>
+    )}
 
     <div class="prose">
-      <Content />
+      {article.blocks && article.blocks.length > 0 ? (
+        <BlockRenderer blocks={article.blocks} />
+      ) : MdxContent ? (
+        <MdxContent />
+      ) : (
+        <p>{article.excerpt}</p>
+      )}
     </div>
 
-    <!-- Applause — stored locally for now; ponytail: server-side counts when a backend exists -->
+    <!-- Applause — persistence via Supabase API -->
     <div class="applause">
-      <button class="arc-iconbtn clap" data-shape="circle" data-variant="outline" style="width:56px;height:56px" aria-label="Applaud" data-slug={article.id}>
+      <button class="arc-iconbtn clap" data-shape="circle" data-variant="outline" style="width:56px;height:56px" aria-label="Applaud" data-id={article.id}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 10V4.5a1.5 1.5 0 0 1 3 0V12"/><path d="M17 11.5V7a1.5 1.5 0 0 1 3 0v6a7 7 0 0 1-7 7h-1.5a6 6 0 0 1-5-2.7L4 13a1.6 1.6 0 0 1 2.7-1.7L8 13V6.5a1.5 1.5 0 0 1 3 0V11"/></svg>
       </button>
-      <div class="count"><span class="n">0</span> applause</div>
+      <div class="count"><span class="n">{article.claps || 0}</span> applause</div>
     </div>
 
     {finePrint && <div class="fine">{finePrint}</div>}
 
-    <a href={`/researchers/${researcher.id}/`} class="researcher-card">
-      <Avatar name={researcher.data.name} src={researcher.data.avatar} size={64} />
-      <span>
-        <span class="rc-eyebrow">The researcher</span>
-        <span class="rc-name">{researcher.data.name}</span>
-        <span class="rc-meta">{researcher.data.program} · {researcher.data.yearOfStudy} →</span>
-      </span>
-    </a>
+    {researcherData && (
+      <a href={`/researchers/${researcherData.slug}/`} class="researcher-card">
+        <Avatar name={researcherData.full_name} src={researcherData.avatar_url} size={64} />
+        <span>
+          <span class="rc-eyebrow">The researcher</span>
+          <span class="rc-name">{researcherData.full_name}</span>
+          <span class="rc-meta">{researcherData.program} · {researcherData.year_of_study} →</span>
+        </span>
+      </a>
+    )}
   </main>
 </Base>
 
@@ -126,7 +175,7 @@ const finePrint = [
 
   .head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
   .langs { display: flex; gap: 2px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; }
-  .langs span { padding: 4px 8px; color: var(--muted); border-bottom: 2px solid transparent; }
+  .langs span { padding: 4px 8px; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; }
   .langs .on { color: var(--ink); border-bottom-color: var(--ink); }
 
   h1 {
@@ -160,8 +209,8 @@ const finePrint = [
   .tools .arc-iconbtn[aria-expanded='true'] { background: var(--ink); color: var(--on-ink); }
 
   .player { display: flex; align-items: center; gap: 14px; border: 1px solid var(--ink); padding: 12px 16px; margin-top: 18px; }
-  .player .track { flex: 1; height: 3px; background: var(--hairline); }
-  .player .track div { height: 100%; background: var(--ink); }
+  .player .track { flex: 1; height: 3px; background: var(--hairline); overflow: hidden; }
+  .player .track-progress { height: 100%; background: var(--ink); transition: width 100ms linear; }
   .player .time { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
 
   .settings-panel { border: 1px solid var(--ink); padding: 18px; margin-top: 18px; background: var(--canvas); }
@@ -192,6 +241,8 @@ const finePrint = [
 
   .hero { margin: 30px 0; }
   .hero figcaption { font-family: var(--font-sans); font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+  .prose { margin: 36px 0; }
 
   .applause {
     display: flex;
@@ -251,7 +302,7 @@ const finePrint = [
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  // Slot toggles: audio player mock & reader settings panel
+  // Slot toggles: audio player & settings
   const wire = (btnSel: string, panelSel: string) => {
     const btn = document.querySelector(btnSel);
     const panel = document.querySelector(panelSel);
@@ -264,19 +315,61 @@ const finePrint = [
   wire('.listen', '.player');
   wire('.settings', '.settings-panel');
 
-  // Applause — one clap per reader, kept in localStorage
-  const clap = document.querySelector<HTMLElement>('.clap');
-  const n = document.querySelector<HTMLElement>('.count .n');
-  if (clap && n) {
-    const key = `arc-claps-${clap.dataset.slug}`;
-    const read = () => Number(localStorage.getItem(key) ?? 0);
-    n.textContent = String(read());
-    if (read() > 0) clap.setAttribute('data-clapped', '');
-    clap.addEventListener('click', () => {
-      if (clap.hasAttribute('data-clapped')) return;
-      localStorage.setItem(key, String(read() + 1));
-      n.textContent = String(read());
-      clap.setAttribute('data-clapped', '');
+  // Interactive HTML5 Audio Player
+  const audio = document.querySelector<HTMLAudioElement>('#article-audio');
+  const playBtn = document.querySelector<HTMLElement>('.play-audio-btn');
+  const playIcon = document.querySelector<HTMLElement>('.play-icon');
+  const trackProgress = document.querySelector<HTMLElement>('.track-progress');
+  const currentTimeEl = document.querySelector<HTMLElement>('.current-time');
+
+  if (audio && playBtn && playIcon && trackProgress) {
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playIcon.textContent = '❚❚';
+      } else {
+        audio.pause();
+        playIcon.textContent = '▶';
+      }
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      trackProgress.style.width = `${pct}%`;
+      const mins = Math.floor(audio.currentTime / 60);
+      const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+      if (currentTimeEl) currentTimeEl.textContent = `${mins}:${secs}`;
+    });
+
+    audio.addEventListener('ended', () => {
+      playIcon.textContent = '▶';
+      trackProgress.style.width = '0%';
+    });
+  }
+
+  // Applause API connection
+  const clapBtn = document.querySelector<HTMLElement>('.clap');
+  const countEl = document.querySelector<HTMLElement>('.count .n');
+
+  if (clapBtn && countEl) {
+    clapBtn.addEventListener('click', async () => {
+      const articleId = clapBtn.dataset.id;
+      if (!articleId) return;
+
+      const current = parseInt(countEl.textContent || '0', 10);
+      countEl.textContent = String(current + 1);
+      clapBtn.setAttribute('data-clapped', '');
+
+      try {
+        await fetch('/api/clap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ articleId })
+        });
+      } catch (e) {
+        console.error('Failed to increment clap', e);
+      }
     });
   }
 </script>

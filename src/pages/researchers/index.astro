@@ -1,12 +1,13 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Avatar from '../../components/Avatar.astro';
-import { publishedArticles } from '../../lib/articles';
+import { getResearchers, getArticles } from '../../lib/supabase';
 
-const researchers = await getCollection('researchers');
-const articles = await publishedArticles();
-const count = (id: string) => articles.filter((a) => a.data.researcher.id === id).length;
+export const prerender = false;
+
+const researchers = await getResearchers();
+const articles = await getArticles();
+const count = (researcherId: string) => articles.filter((a) => a.researcher_id === researcherId || a.researcher?.id === researcherId).length;
 ---
 <Base title="Researchers — Ashesi Research Club">
   <main>
@@ -14,19 +15,22 @@ const count = (id: string) => articles.filter((a) => a.data.researcher.id === id
     <h1>Profiled researchers</h1>
     <p class="lede">The people behind the work — every researcher the magazine has profiled.</p>
     <div class="roster">
-      {researchers.map((r, i) => (
-        <div>
-          {i > 0 && <hr class="arc-rule" />}
-          <a href={`/researchers/${r.id}/`} class="person">
-            <Avatar name={r.data.name} src={r.data.avatar} size={64} />
-            <span>
-              <span class="name">{r.data.name}</span>
-              <span class="meta">{r.data.program} · {r.data.yearOfStudy}</span>
-            </span>
-            <span class="n">{count(r.id)} {count(r.id) === 1 ? 'story' : 'stories'} →</span>
-          </a>
-        </div>
-      ))}
+      {researchers.map((r, i) => {
+        const storyCount = count(r.id);
+        return (
+          <div>
+            {i > 0 && <hr class="arc-rule" />}
+            <a href={`/researchers/${r.slug}/`} class="person">
+              <Avatar name={r.full_name} src={r.avatar_url} size={64} />
+              <span>
+                <span class="name">{r.full_name}</span>
+                <span class="meta">{r.program} · {r.year_of_study}</span>
+              </span>
+              <span class="n">{storyCount} {storyCount === 1 ? 'story' : 'stories'} →</span>
+            </a>
+          </div>
+        );
+      })}
     </div>
   </main>
 </Base>

@@ -2,9 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import StoryRow from '../../components/StoryRow.astro';
 import { CATEGORY_LABELS } from '../../lib/categories';
-import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+import { formatDate, minutes } from '../../lib/articles';
+import { getArticles } from '../../lib/supabase';
 
-const articles = await publishedArticles();
+export const prerender = false;
+
+const articles = await getArticles();
 const pills = [['all', 'All'], ...Object.entries(CATEGORY_LABELS)];
 ---
 <Base title="Articles — Ashesi Research Club">
@@ -27,18 +30,18 @@ const pills = [['all', 'All'], ...Object.entries(CATEGORY_LABELS)];
       {articles.map((a) => (
         <div
           class="hit"
-          data-cat={a.data.category}
-          data-hay={`${a.data.title} ${a.data.excerpt} ${a.data.tags.join(' ')} ${a.body ?? ''}`.toLowerCase()}
+          data-cat={a.category_id}
+          data-hay={`${a.title} ${a.excerpt} ${a.tags?.join(' ') || ''}`.toLowerCase()}
         >
           <StoryRow
-            href={`/articles/${a.id}/`}
-            title={a.data.title}
-            category={a.data.category}
-            excerpt={a.data.excerpt}
-            writtenBy={a.data.writtenBy}
-            date={formatDate(a.data.publishedDate)}
+            href={`/articles/${a.slug}/`}
+            title={a.title}
+            category={a.category_id}
+            excerpt={a.excerpt}
+            writtenBy={a.written_by}
+            date={formatDate(a.published_date)}
             readTime={minutes(a)}
-            image={a.data.featuredImage}
+            image={a.featured_image}
           />
         </div>
       ))}

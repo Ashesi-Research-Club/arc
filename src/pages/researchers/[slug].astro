@@ -1,51 +1,53 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Avatar from '../../components/Avatar.astro';
 import CategoryEyebrow from '../../components/CategoryEyebrow.astro';
 import Photo from '../../components/Photo.astro';
-import { publishedArticles, formatDate, minutes } from '../../lib/articles';
+import { formatDate, minutes } from '../../lib/articles';
+import { getResearcherBySlug, getArticles } from '../../lib/supabase';
 
-export async function getStaticPaths() {
-  const researchers = await getCollection('researchers');
-  const articles = await publishedArticles();
-  return researchers.map((r) => ({
-    params: { slug: r.id },
-    props: { researcher: r, articles: articles.filter((a) => a.data.researcher.id === r.id) },
-  }));
+export const prerender = false;
+
+const { slug } = Astro.params;
+const researcher = await getResearcherBySlug(slug as string);
+
+if (!researcher) {
+  return Astro.redirect('/404');
 }
 
-const { researcher: r, articles } = Astro.props;
+const allArticles = await getArticles();
+const articles = allArticles.filter((a) => a.researcher_id === researcher.id || a.researcher?.slug === slug || a.researcher?.id === researcher.id);
 ---
-<Base title={`${r.data.name} — Ashesi Research Club`} description={r.data.bio}>
+
+<Base title={`${researcher.full_name} — Ashesi Research Club`} description={researcher.bio}>
   <main>
     <a href="/" class="back">← Ashesi Research Club</a>
     <div class="head">
-      <Avatar name={r.data.name} src={r.data.avatar} size={96} />
+      <Avatar name={researcher.full_name} src={researcher.avatar_url} size={96} />
       <div>
         <div class="eyebrow">Researcher</div>
-        <h1>{r.data.name}</h1>
-        <div class="meta">{r.data.program} · {r.data.yearOfStudy}</div>
+        <h1>{researcher.full_name}</h1>
+        <div class="meta">{researcher.program} · {researcher.year_of_study}</div>
       </div>
     </div>
-    <p class="bio">{r.data.bio}</p>
+    <p class="bio">{researcher.bio}</p>
     <div class="interests">
-      {r.data.interests.map((t) => <span class="arc-tag">{t}</span>)}
+      {researcher.interests.map((t) => <span class="arc-tag">{t}</span>)}
     </div>
 
     <div class="featured-head">Featured in</div>
     {articles.length === 0 && (
-      <p class="empty">No published stories feature {r.data.firstName} yet — profiles land here as they publish.</p>
+      <p class="empty">No published stories feature {researcher.first_name || researcher.full_name} yet — profiles land here as they publish.</p>
     )}
     {articles.map((a) => (
       <article class="row">
         <div>
-          <CategoryEyebrow category={a.data.category} />
-          <h2><a href={`/articles/${a.id}/`}>{a.data.title}</a></h2>
-          <div class="row-meta">By {a.data.writtenBy} · {formatDate(a.data.publishedDate)} · {minutes(a)} min</div>
+          <CategoryEyebrow category={a.category_id} />
+          <h2><a href={`/articles/${a.slug}/`}>{a.title}</a></h2>
+          <div class="row-meta">By {a.written_by} · {formatDate(a.published_date)} · {minutes(a)} min</div>
         </div>
-        <a href={`/articles/${a.id}/`} class="row-thumb" aria-hidden="true" tabindex="-1">
-          <Photo src={a.data.featuredImage} ratio="4/3" label="" />
+        <a href={`/articles/${a.slug}/`} class="row-thumb" aria-hidden="true" tabindex="-1">
+          <Photo src={a.featured_image} ratio="4/3" label="" />
         </a>
       </article>
     ))}
