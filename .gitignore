@@ -36,3 +36,5 @@ Thumbs.db
 *.swp
 
 seed.sql
+# Local Netlify folder
+.netlify

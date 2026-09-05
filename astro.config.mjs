@@ -1,15 +1,12 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import node from '@astrojs/node';
+import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
   vite: {
     envPrefix: ['PUBLIC_', 'SUPABASE_', 'NUXT_']
   },
-  adapter: node({
-    mode: 'standalone'
-  }),
+  adapter: netlify(),
   integrations: [mdx()]
 });
