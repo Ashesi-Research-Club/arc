@@ -91,14 +91,16 @@ const researchers = await getResearchers();
   }
   .cover { padding-top: 40px; }
   .cover-media { display: block; text-decoration: none; }
-  .cover-text { max-width: 820px; margin-top: 26px; }
+  .cover-text { width: 100%; max-width: 100%; margin-top: 26px; }
   .cover h1 {
     font-family: var(--font-display);
     font-weight: 400;
-    font-size: 60px;
-    line-height: 1.04;
+    font-size: 54px;
+    line-height: 1.08;
     letter-spacing: var(--track-tight);
     margin: 14px 0 0;
+    width: 100%;
+    max-width: 100%;
   }
   .cover h1 a { color: var(--ink); text-decoration: none; }
   .cover p {
@@ -107,7 +109,8 @@ const researchers = await getResearchers();
     line-height: 1.5;
     color: var(--ink);
     margin: 18px 0 0;
-    max-width: 720px;
+    width: 100%;
+    max-width: 100%;
   }
   .cover-byline { margin-top: 22px; }
   main > .arc-rule { margin: 56px 0; }

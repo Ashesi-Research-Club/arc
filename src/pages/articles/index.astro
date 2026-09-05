@@ -3,12 +3,20 @@ import Base from '../../layouts/Base.astro';
 import StoryRow from '../../components/StoryRow.astro';
 import { CATEGORY_LABELS } from '../../lib/categories';
 import { formatDate, minutes } from '../../lib/articles';
-import { getArticles } from '../../lib/supabase';
+import { getArticles, getCategories } from '../../lib/supabase';
 
 export const prerender = false;
 
 const articles = await getArticles();
-const pills = [['all', 'All'], ...Object.entries(CATEGORY_LABELS)];
+const categories = await getCategories();
+
+// Build pills dynamically from DB categories, fallback to CATEGORY_LABELS if empty
+const pills: [string, string][] = [
+  ['all', 'All'],
+  ...(categories.length > 0 
+    ? categories.map((c): [string, string] => [c.id, c.name.split('&')[0].trim()])
+    : Object.entries(CATEGORY_LABELS))
+];
 ---
 <Base title="Articles — Ashesi Research Club">
   <main>
