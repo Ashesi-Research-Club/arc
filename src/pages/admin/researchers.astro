@@ -1,0 +1,244 @@
+---
+import Base from '../../layouts/Base.astro';
+import Field from '../../components/Field.astro';
+import Avatar from '../../components/Avatar.astro';
+import { getResearchers } from '../../lib/supabase';
+
+export const prerender = false;
+
+const researchers = await getResearchers();
+---
+
+<Base title="Researchers Desk — ARC Editorial Admin">
+  <main>
+    <div class="nav-bar">
+      <a href="/admin/" class="back-link">← Editorial Desk</a>
+      <button type="button" id="open-add-modal" class="arc-button" data-variant="primary">+ Add New Researcher</button>
+    </div>
+
+    <div class="eyebrow">Researchers Desk</div>
+    <h1>Manage Profiled Researchers</h1>
+    <p class="lede">Add faculty and student researchers, update biographies, and manage research interests.</p>
+
+    <!-- Researcher Roster Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Researcher</th>
+            <th>Program & Class</th>
+            <th>Interests</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {researchers.map((r) => (
+            <tr>
+              <td>
+                <div class="res-head">
+                  <Avatar name={r.full_name} src={r.avatar_url} size={40} />
+                  <div>
+                    <div class="res-name">{r.full_name}</div>
+                    <div class="res-slug">/{r.slug}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{r.program} · {r.year_of_study}</td>
+              <td>
+                <div class="tags-row">
+                  {r.interests.map((t) => <span class="arc-tag">{t}</span>)}
+                </div>
+              </td>
+              <td>
+                <button type="button" class="arc-button edit-res-btn" data-variant="secondary" style="font-size: 12px; padding: 4px 10px;" data-json={JSON.stringify(r)}>Edit Profile</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Form for Adding / Editing Researcher -->
+    <div id="res-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2 id="modal-title">Add New Researcher</h2>
+          <button type="button" id="close-modal-btn" class="close-btn">✕</button>
+        </div>
+
+        <form id="res-form">
+          <input type="hidden" id="res-id" name="id" />
+          
+          <div class="grid2">
+            <Field label="Full Name" htmlFor="res-name" required>
+              <input class="arc-input" id="res-name" name="full_name" placeholder="Dr. Isaac Osei Nyantakyi" required />
+            </Field>
+
+            <Field label="URL Slug" htmlFor="res-slug" required>
+              <input class="arc-input" id="res-slug" name="slug" placeholder="isaac-osei-nyantakyi" required />
+            </Field>
+          </div>
+
+          <div class="grid2">
+            <Field label="Program / Department" htmlFor="res-prog" required>
+              <input class="arc-input" id="res-prog" name="program" placeholder="Electrical Engineering" required />
+            </Field>
+
+            <Field label="Year of Study / Status" htmlFor="res-year" required>
+              <input class="arc-input" id="res-year" name="year_of_study" placeholder="Faculty / Class of 2026" required />
+            </Field>
+          </div>
+
+          <Field label="Biography" htmlFor="res-bio" required>
+            <textarea class="arc-input" id="res-bio" name="bio" rows="4" placeholder="Ghanaian signal-processing researcher..." required></textarea>
+          </Field>
+
+          <div class="grid2">
+            <Field label="Avatar Image URL" htmlFor="res-avatar" hint="Cloudinary / Photo URL">
+              <input class="arc-input" id="res-avatar" name="avatar_url" placeholder="https://res.cloudinary.com/..." />
+            </Field>
+
+            <Field label="Research Interests (Comma Separated)" htmlFor="res-interests">
+              <input class="arc-input" id="res-interests" name="interests" placeholder="Signal processing, Localization, 5G" />
+            </Field>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="arc-button" data-variant="primary">Save Researcher Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; }
+  .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .back-link { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; }
+
+  .eyebrow { font-family: var(--font-sans); font-size: 13px; font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--muted); }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 44px; color: var(--ink); margin: 8px 0; }
+  .lede { font-family: var(--font-body); font-size: 18px; color: var(--muted); margin-bottom: 32px; }
+
+  .table-wrap { border: 1px solid var(--ink); background: #fff; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; text-align: left; }
+  th { font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; background: #f4f4f4; padding: 14px 16px; border-bottom: 1px solid var(--ink); }
+  td { padding: 16px; border-bottom: 1px solid var(--hairline); font-family: var(--font-sans); font-size: 14px; }
+  
+  .res-head { display: flex; gap: 12px; align-items: center; }
+  .res-name { font-family: var(--font-display); font-size: 18px; color: var(--ink); }
+  .res-slug { font-size: 12px; color: var(--muted); }
+  .tags-row { display: flex; gap: 4px; flex-wrap: wrap; }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop[hidden] { display: none !important; }
+  .modal-card { background: #fff; border: 1px solid var(--ink); width: 90%; max-width: 640px; padding: 28px; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--ink); padding-bottom: 12px; }
+  .modal-head h2 { font-family: var(--font-display); font-size: 24px; font-weight: 400; margin: 0; }
+  .close-btn { border: none; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .modal-actions { margin-top: 24px; text-align: right; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const code = sessionStorage.getItem('arc_admin_passcode');
+  if (!code) window.location.href = '/admin/';
+
+  const modal = document.getElementById('res-modal')!;
+  const modalTitle = document.getElementById('modal-title')!;
+  const form = document.getElementById('res-form') as HTMLFormElement;
+  const openAddBtn = document.getElementById('open-add-modal')!;
+  const closeBtn = document.getElementById('close-modal-btn')!;
+
+  const nameInput = document.getElementById('res-name') as HTMLInputElement;
+  const slugInput = document.getElementById('res-slug') as HTMLInputElement;
+
+  nameInput.addEventListener('input', () => {
+    if (!slugInput.value || slugInput.dataset.userEdited !== 'true') {
+      slugInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+  });
+
+  slugInput.addEventListener('input', () => {
+    slugInput.dataset.userEdited = 'true';
+  });
+
+  openAddBtn.addEventListener('click', () => {
+    form.reset();
+    (document.getElementById('res-id') as HTMLInputElement).value = '';
+    modalTitle.textContent = 'Add New Researcher';
+    modal.removeAttribute('hidden');
+  });
+
+  closeBtn.addEventListener('click', () => modal.setAttribute('hidden', ''));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.setAttribute('hidden', '');
+  });
+
+  document.querySelectorAll('.edit-res-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const data = JSON.parse(btn.getAttribute('data-json') || '{}');
+      (document.getElementById('res-id') as HTMLInputElement).value = data.id || '';
+      (document.getElementById('res-name') as HTMLInputElement).value = data.full_name || '';
+      (document.getElementById('res-slug') as HTMLInputElement).value = data.slug || '';
+      (document.getElementById('res-prog') as HTMLInputElement).value = data.program || '';
+      (document.getElementById('res-year') as HTMLInputElement).value = data.year_of_study || '';
+      (document.getElementById('res-bio') as HTMLTextAreaElement).value = data.bio || '';
+      (document.getElementById('res-avatar') as HTMLInputElement).value = data.avatar_url || '';
+      (document.getElementById('res-interests') as HTMLInputElement).value = (data.interests || []).join(', ');
+
+      modalTitle.textContent = `Edit ${data.full_name}`;
+      modal.removeAttribute('hidden');
+    });
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+
+    const interestsRaw = (formData.get('interests') as string) || '';
+    const interests = interestsRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    const payload = {
+      passcode: code,
+      id: formData.get('id') || undefined,
+      full_name: formData.get('full_name'),
+      slug: formData.get('slug'),
+      program: formData.get('program'),
+      year_of_study: formData.get('year_of_study'),
+      bio: formData.get('bio'),
+      avatar_url: formData.get('avatar_url'),
+      interests: interests
+    };
+
+    try {
+      const res = await fetch('/api/admin/researchers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(`Save failed: ${data.error}`);
+      }
+    } catch (err) {
+      alert('Error saving researcher profile');
+    }
+  });
+</script>

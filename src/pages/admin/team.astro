@@ -1,0 +1,742 @@
+---
+import Base from "../../layouts/Base.astro";
+import Field from "../../components/Field.astro";
+import Avatar from "../../components/Avatar.astro";
+import {
+  getAcademicSessions,
+  getTeamBySession,
+  getResearchers,
+  supabase,
+} from "../../lib/supabase";
+
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const selectedSessionId = url.searchParams.get("session") || undefined;
+
+const sessions = await getAcademicSessions();
+const { session: activeSession, members } =
+  await getTeamBySession(selectedSessionId);
+const researchers = await getResearchers();
+
+// Fetch all existing master team members for dropdown
+let masterMembers: any[] = [];
+if (supabase) {
+  const { data } = await supabase.from("team_members").select("*");
+  masterMembers = data || [];
+}
+
+// Combine researchers & team members into a unique list of individuals
+const allIndividualsMap = new Map();
+masterMembers.forEach((m) =>
+  allIndividualsMap.set(m.name, {
+    name: m.name,
+    specialization: m.specialization,
+    year_of_study: m.year_of_study,
+    avatar_url: m.avatar_url,
+  }),
+);
+researchers.forEach((r) => {
+  if (!allIndividualsMap.has(r.full_name)) {
+    allIndividualsMap.set(r.full_name, {
+      name: r.full_name,
+      specialization: r.program,
+      year_of_study: r.year_of_study,
+      avatar_url: r.avatar_url,
+    });
+  }
+});
+const availableIndividuals = Array.from(allIndividualsMap.values());
+
+const STANDARD_ROLES = [
+  "President",
+  "Vice President",
+  "Editor-in-Chief",
+  "Managing Editor",
+  "Research Editor",
+  "Design Lead",
+  "Technology Lead",
+  "Custom...",
+];
+---
+
+<Base title="Team Archiving Desk — ARC Editorial Admin">
+  <main>
+    <div class="nav-bar">
+      <a href="/admin/" class="back-link">← Editorial Desk</a>
+      <div class="action-buttons">
+        <button
+          type="button"
+          id="open-session-modal"
+          class="arc-button"
+          data-variant="secondary">+ Add Academic Session</button
+        >
+        <button
+          type="button"
+          id="open-role-modal"
+          class="arc-button"
+          data-variant="primary">+ Add Executive Role</button
+        >
+      </div>
+    </div>
+
+    <div class="eyebrow">Team & Session Archiving</div>
+    <h1>Executive Masthead & Sessions</h1>
+    <p class="lede">
+      Manage leadership rosters for active and past academic terms.
+    </p>
+
+    <!-- Session Selector -->
+    <div class="session-selector-bar">
+      <div>
+        <label for="session-dropdown" class="sess-label"
+          >Viewing Session Roster:</label
+        >
+        <select
+          id="session-dropdown"
+          class="arc-input"
+          style="width: auto; min-width: 240px; display: inline-block;"
+        >
+          {
+            sessions.map((s) => (
+              <option value={s.id} selected={s.id === activeSession.id}>
+                {s.session_label}{" "}
+                {s.is_current ? "(Current Active)" : "(Archive)"}
+              </option>
+            ))
+          }
+        </select>
+      </div>
+      <div class="sess-status">
+        {
+          activeSession.is_current ? (
+            <span class="status-tag active">ACTIVE TERM</span>
+          ) : (
+            <span class="status-tag archive">HISTORICAL ARCHIVE</span>
+          )
+        }
+      </div>
+    </div>
+
+    <!-- Roster Table for Selected Session -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Executive Member</th>
+            <th>Role Title</th>
+            <th>Specialization & Class</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            members.map((m) => (
+              <tr>
+                <td>
+                  <strong>#{m.order_index || 1}</strong>
+                </td>
+                <td>
+                  <div class="res-head">
+                    <Avatar name={m.name} src={m.avatar_url} size={40} />
+                    <span class="res-name">{m.name}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="role-badge">{m.role}</span>
+                </td>
+                <td>
+                  {m.specialization}
+                  <br />
+                  {m.year_of_study}
+                </td>
+                <td class="desc-cell">{m.description}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal 1: Add Session -->
+    <div id="session-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2>Create Academic Session</h2>
+          <button type="button" id="close-session-btn" class="close-btn"
+            >Close</button
+          >
+        </div>
+        <form id="session-form">
+          <Field
+            label="Session ID"
+            htmlFor="sess-id"
+            hint="e.g. 2026-2027"
+            required
+          >
+            <input
+              class="arc-input"
+              id="sess-id"
+              name="id"
+              placeholder="2026-2027"
+              required
+            />
+          </Field>
+          <Field label="Session Display Label" htmlFor="sess-label" required>
+            <input
+              class="arc-input"
+              id="sess-label"
+              name="session_label"
+              placeholder="2026/2027 Session"
+              required
+            />
+          </Field>
+          <div class="grid2">
+            <Field label="Start Year" htmlFor="sess-start" required>
+              <input
+                class="arc-input"
+                id="sess-start"
+                name="start_year"
+                type="number"
+                value="2026"
+                required
+              />
+            </Field>
+            <Field label="End Year" htmlFor="sess-end" required>
+              <input
+                class="arc-input"
+                id="sess-end"
+                name="end_year"
+                type="number"
+                value="2027"
+                required
+              />
+            </Field>
+          </div>
+          <Field label="Is Current Active Session?">
+            <label class="check-label">
+              <input type="checkbox" name="is_current" />
+              <span>Set as active session for website header</span>
+            </label>
+          </Field>
+          <div class="modal-actions">
+            <button type="submit" class="arc-button" data-variant="primary"
+              >Create Academic Session</button
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal 2: Add Role to Session -->
+    <div id="role-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2>Add Executive Role ({activeSession.session_label})</h2>
+          <button type="button" id="close-role-btn" class="close-btn"
+            >Close</button
+          >
+        </div>
+
+        <div id="role-error-msg" class="error-banner" hidden></div>
+
+        <form id="role-form">
+          <input type="hidden" name="session_id" value={activeSession.id} />
+
+          <Field
+            label="Select Executive Member"
+            htmlFor="member-select"
+            hint="Choose existing individual or create new"
+          >
+            <select id="member-select" class="arc-input">
+              <option value="__NEW__">+ Create New Individual...</option>
+              {
+                availableIndividuals.map((ind) => (
+                  <option value={JSON.stringify(ind)}>
+                    {ind.name} ({ind.specialization})
+                  </option>
+                ))
+              }
+            </select>
+          </Field>
+
+          <div class="grid2">
+            <Field label="Member Full Name" htmlFor="m-name" required>
+              <input
+                class="arc-input"
+                id="m-name"
+                name="name"
+                placeholder="Sinam Afi Serwa Ametewee"
+                required
+              />
+            </Field>
+
+            <Field label="Executive Role Title" htmlFor="role-select" required>
+              <select id="role-select" class="arc-input">
+                {STANDARD_ROLES.map((r) => <option value={r}>{r}</option>)}
+              </select>
+              <input
+                class="arc-input"
+                id="custom-role-input"
+                name="role"
+                value={STANDARD_ROLES[0]}
+                style="display:none; margin-top: 8px;"
+                placeholder="Custom Role Title..."
+              />
+            </Field>
+          </div>
+
+          <div class="grid2">
+            <Field label="Specialization" htmlFor="m-spec" required>
+              <input
+                class="arc-input"
+                id="m-spec"
+                name="specialization"
+                placeholder="Computer Science"
+                required
+              />
+            </Field>
+            <Field label="Year of Study / Class" htmlFor="m-year" required>
+              <input
+                class="arc-input"
+                id="m-year"
+                name="year_of_study"
+                placeholder="Year 3 / Class of 2026"
+                required
+              />
+            </Field>
+          </div>
+
+          <Field label="Role Description" htmlFor="m-desc" required>
+            <textarea
+              class="arc-input"
+              id="m-desc"
+              name="description"
+              rows="3"
+              placeholder="Leads executive operations..."
+              required></textarea>
+          </Field>
+
+          <div class="grid2">
+            <Field label="Display Order Index" htmlFor="m-order" required>
+              <input
+                class="arc-input"
+                id="m-order"
+                name="order_index"
+                type="number"
+                value={members.length + 1}
+                required
+              />
+            </Field>
+            <Field label="Avatar Image URL">
+              <input
+                class="arc-input"
+                id="m-avatar"
+                name="avatar_url"
+                placeholder="https://res.cloudinary.com/..."
+              />
+            </Field>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="submit"
+              id="save-role-btn"
+              class="arc-button"
+              data-variant="primary">Save Executive Role</button
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .back-link {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 44px;
+    color: var(--ink);
+    margin: 8px 0;
+  }
+  .lede {
+    font-family: var(--font-body);
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  .session-selector-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--ink);
+    padding: 16px 20px;
+    background: #fafafa;
+    margin-bottom: 24px;
+  }
+  .sess-label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 12px;
+  }
+  .status-tag {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    letter-spacing: 0.05em;
+  }
+  .status-tag.active {
+    background: var(--ink);
+    color: #fff;
+  }
+  .status-tag.archive {
+    background: #e0e0e0;
+    color: #333;
+  }
+
+  .table-wrap {
+    border: 1px solid var(--ink);
+    background: #fff;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  th {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    background: #f4f4f4;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ink);
+  }
+  td {
+    padding: 16px;
+    border-bottom: 1px solid var(--hairline);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+
+  .res-head {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .res-name {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .role-badge {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .desc-cell {
+    max-width: 300px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop[hidden] {
+    display: none !important;
+  }
+  .modal-card {
+    background: #fff;
+    border: 1px solid var(--ink);
+    width: 90%;
+    max-width: 600px;
+    padding: 28px;
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 12px;
+  }
+  .modal-head h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+  }
+  .close-btn {
+    border: none;
+    background: transparent;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .check-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .modal-actions {
+    margin-top: 24px;
+    text-align: right;
+  }
+
+  .error-banner {
+    background: #ffebee;
+    border: 1px solid #d32f2f;
+    color: #c62828;
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 767px) {
+    main {
+      padding: 32px 20px 72px;
+    }
+    .session-selector-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .grid2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script
+  is:inline
+  define:vars={{ existingRoles: members.map((m) => m.role.toLowerCase()) }}
+>
+  const code = sessionStorage.getItem("arc_admin_passcode");
+  if (!code) window.location.href = "/admin/";
+
+  const dropdown = document.getElementById("session-dropdown");
+  dropdown.addEventListener("change", () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("session", dropdown.value);
+    window.location.href = url.toString();
+  });
+
+  const sessionModal = document.getElementById("session-modal");
+  const roleModal = document.getElementById("role-modal");
+  const errorBanner = document.getElementById("role-error-msg");
+
+  document
+    .getElementById("open-session-modal")
+    .addEventListener("click", () => sessionModal.removeAttribute("hidden"));
+  document
+    .getElementById("close-session-btn")
+    .addEventListener("click", () => sessionModal.setAttribute("hidden", ""));
+  sessionModal.addEventListener("click", (e) => {
+    if (e.target === sessionModal) sessionModal.setAttribute("hidden", "");
+  });
+
+  document
+    .getElementById("open-role-modal")
+    .addEventListener("click", () => roleModal.removeAttribute("hidden"));
+  document
+    .getElementById("close-role-btn")
+    .addEventListener("click", () => roleModal.setAttribute("hidden", ""));
+  roleModal.addEventListener("click", (e) => {
+    if (e.target === roleModal) roleModal.setAttribute("hidden", "");
+  });
+
+  // Member Selector Logic
+  const memberSelect = document.getElementById("member-select");
+  const nameInput = document.getElementById("m-name");
+  const specInput = document.getElementById("m-spec");
+  const yearInput = document.getElementById("m-year");
+  const avatarInput = document.getElementById("m-avatar");
+
+  memberSelect.addEventListener("change", () => {
+    const val = memberSelect.value;
+    if (val === "__NEW__") {
+      nameInput.value = "";
+      specInput.value = "";
+      yearInput.value = "";
+      avatarInput.value = "";
+    } else {
+      try {
+        const ind = JSON.parse(val);
+        nameInput.value = ind.name || "";
+        specInput.value = ind.specialization || "";
+        yearInput.value = ind.year_of_study || "";
+        avatarInput.value = ind.avatar_url || "";
+      } catch (e) {}
+    }
+  });
+
+  // Role Dropdown & Custom Role Logic
+  const roleSelect = document.getElementById("role-select");
+  const customRoleInput = document.getElementById("custom-role-input");
+
+  roleSelect.addEventListener("change", () => {
+    if (roleSelect.value === "Custom...") {
+      customRoleInput.style.display = "block";
+      customRoleInput.value = "";
+      customRoleInput.required = true;
+    } else {
+      customRoleInput.style.display = "none";
+      customRoleInput.value = roleSelect.value;
+    }
+  });
+
+  // Session Submit Handler
+  document
+    .getElementById("session-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const payload = {
+        passcode: code,
+        type: "session",
+        data: {
+          id: formData.get("id"),
+          session_label: formData.get("session_label"),
+          start_year: Number(formData.get("start_year")),
+          end_year: Number(formData.get("end_year")),
+          is_current: formData.get("is_current") === "on",
+        },
+      };
+
+      try {
+        const res = await fetch("/api/admin/team", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) window.location.reload();
+        else alert(`Failed: ${data.error}`);
+      } catch (err) {
+        alert("Error creating session");
+      }
+    });
+
+  // Role Submit Handler with Graceful Validation
+  document.getElementById("role-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBanner.setAttribute("hidden", "");
+
+    const formData = new FormData(e.target);
+    const roleTitle = (
+      roleSelect.value === "Custom..."
+        ? customRoleInput.value
+        : roleSelect.value
+    ).trim();
+
+    if (!roleTitle) {
+      errorBanner.textContent = "Please specify a valid role title.";
+      errorBanner.removeAttribute("hidden");
+      return;
+    }
+
+    // Check for duplicate role in current session
+    if (existingRoles.includes(roleTitle.toLowerCase())) {
+      errorBanner.textContent = `The role '${roleTitle}' is already assigned in this academic session. Please edit the existing entry or assign a different role.`;
+      errorBanner.removeAttribute("hidden");
+      return;
+    }
+
+    const payload = {
+      passcode: code,
+      type: "role",
+      data: {
+        session_id: formData.get("session_id"),
+        name: formData.get("name"),
+        role: roleTitle,
+        specialization: formData.get("specialization"),
+        year_of_study: formData.get("year_of_study"),
+        description: formData.get("description"),
+        order_index: Number(formData.get("order_index")),
+        avatar_url: formData.get("avatar_url"),
+      },
+    };
+
+    const saveBtn = document.getElementById("save-role-btn");
+    saveBtn.disabled = true;
+
+    try {
+      const res = await fetch("/api/admin/team", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        errorBanner.textContent = `Save failed: ${data.error || "Please check input fields"}`;
+        errorBanner.removeAttribute("hidden");
+        saveBtn.disabled = false;
+      }
+    } catch (err) {
+      errorBanner.textContent =
+        "Network error saving executive role. Please try again.";
+      errorBanner.removeAttribute("hidden");
+      saveBtn.disabled = false;
+    }
+  });
+</script>

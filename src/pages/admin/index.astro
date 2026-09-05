@@ -1,0 +1,214 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getArticles, getResearchers, getAcademicSessions, supabase } from '../../lib/supabase';
+
+export const prerender = false;
+
+const articles = await getArticles();
+const researchers = await getResearchers();
+const sessions = await getAcademicSessions();
+
+let pendingPitchesCount = 0;
+if (supabase) {
+  const { count } = await supabase.from('applications').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+  pendingPitchesCount = count || 0;
+}
+---
+
+<Base title="Editorial Desk Admin — Ashesi Research Club">
+  <main>
+    <!-- Login Overlay if not authenticated -->
+    <div id="admin-login" class="admin-card auth-card">
+      <div class="eyebrow">Editorial Desk Access</div>
+      <h1>Enter Passcode</h1>
+      <p class="lede">Enter your editorial passcode to access the ARC publisher dashboard.</p>
+      <form id="login-form">
+        <input type="password" id="passcode-input" class="arc-input" placeholder="Editorial Passcode" required autofocus />
+        <div id="auth-error" class="error-msg" hidden>Invalid passcode. Please try again.</div>
+        <button type="submit" class="arc-button" data-variant="primary" style="margin-top: 16px; width: 100%;">Unlock Editorial Desk</button>
+      </form>
+    </div>
+
+    <!-- Admin Dashboard Main View -->
+    <div id="admin-dashboard" hidden>
+      <div class="dash-header">
+        <div>
+          <div class="eyebrow">Publisher Dashboard</div>
+          <h1>Editorial Desk</h1>
+          <p class="lede">Manage magazine articles, interactive blocks, researchers, executive team archives, and research pitch applications.</p>
+        </div>
+        <button id="logout-btn" class="arc-button" data-variant="text">Lock Session</button>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="metrics-grid">
+        <a href="/admin/articles/" class="metric-card">
+          <div class="m-val">{articles.length}</div>
+          <div class="m-lbl">Published Articles</div>
+          <div class="m-action">Manage Articles →</div>
+        </a>
+        <a href="/admin/researchers/" class="metric-card">
+          <div class="m-val">{researchers.length}</div>
+          <div class="m-lbl">Profiled Researchers</div>
+          <div class="m-action">Manage Researchers →</div>
+        </a>
+        <a href="/admin/team/" class="metric-card">
+          <div class="m-val">{sessions.length}</div>
+          <div class="m-lbl">Academic Sessions</div>
+          <div class="m-action">Executive Archives →</div>
+        </a>
+        <a href="/admin/applications/" class="metric-card">
+          <div class="m-val">{pendingPitchesCount}</div>
+          <div class="m-lbl">Pending Pitches</div>
+          <div class="m-action">Review Submissions →</div>
+        </a>
+      </div>
+
+      <!-- Module Navigation Cards -->
+      <div class="modules-grid">
+        <div class="mod-card">
+          <h2>Articles & Interactive Blocks</h2>
+          <p>Create long-form articles, insert quiz checkpoints, audio recordings, code snippets, and pull quotes.</p>
+          <div class="mod-actions">
+            <a href="/admin/articles/editor/" class="arc-button" data-variant="primary">+ Create New Article</a>
+            <a href="/admin/articles/" class="arc-button" data-variant="secondary">View All Articles</a>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <h2>Researcher Profiles</h2>
+          <p>Add faculty and student researchers, update biographies, specializations, and research interest tags.</p>
+          <div class="mod-actions">
+            <a href="/admin/researchers/" class="arc-button" data-variant="secondary">Manage Researchers</a>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <h2>Executive Team Archives</h2>
+          <p>Maintain session archives for executive chairs, presidents, and editors across past academic years.</p>
+          <div class="mod-actions">
+            <a href="/admin/team/" class="arc-button" data-variant="secondary">Manage Team Sessions</a>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <h2>Pitch Submissions Inbox</h2>
+          <p>Review incoming student research applications submitted through the public /apply pitch form.</p>
+          <div class="mod-actions">
+            <a href="/admin/applications/" class="arc-button" data-variant="secondary">Review Submissions ({pendingPitchesCount})</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 48px; line-height: 1.05; color: var(--ink); margin: 8px 0 12px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.5; color: var(--ink); max-width: 640px; }
+
+  .auth-card {
+    max-width: 420px;
+    margin: 60px auto;
+    border: 1px solid var(--ink);
+    padding: 32px;
+    background: var(--canvas);
+  }
+  .error-msg { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: #d32f2f; margin-top: 10px; }
+
+  .dash-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .metric-card {
+    border: 1px solid var(--ink);
+    padding: 20px;
+    text-decoration: none;
+    color: var(--ink);
+    background: #fafafa;
+    transition: transform 120ms ease;
+  }
+  .metric-card:hover { transform: translateY(-2px); background: #fff; }
+  .m-val { font-family: var(--font-display); font-size: 42px; line-height: 1; }
+  .m-lbl { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--muted); margin: 6px 0 12px; }
+  .m-action { font-family: var(--font-sans); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); }
+
+  .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .mod-card {
+    border: 1px solid var(--hairline);
+    padding: 28px;
+    background: #fff;
+  }
+  .mod-card h2 { font-family: var(--font-display); font-size: 24px; font-weight: 400; margin: 0 0 8px; color: var(--ink); }
+  .mod-card p { font-family: var(--font-body); font-size: 15px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .mod-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    .dash-header { flex-direction: column; gap: 16px; }
+    .modules-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  const loginCard = document.getElementById('admin-login')!;
+  const dashCard = document.getElementById('admin-dashboard')!;
+  const loginForm = document.getElementById('login-form') as HTMLFormElement;
+  const passcodeInput = document.getElementById('passcode-input') as HTMLInputElement;
+  const authError = document.getElementById('auth-error')!;
+  const logoutBtn = document.getElementById('logout-btn')!;
+
+  const checkAuth = () => {
+    const code = sessionStorage.getItem('arc_admin_passcode');
+    if (code) {
+      loginCard.setAttribute('hidden', '');
+      dashCard.removeAttribute('hidden');
+    } else {
+      loginCard.removeAttribute('hidden');
+      dashCard.setAttribute('hidden', '');
+    }
+  };
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = passcodeInput.value.trim();
+    authError.setAttribute('hidden', '');
+
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passcode: code })
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('arc_admin_passcode', code);
+        checkAuth();
+      } else {
+        authError.removeAttribute('hidden');
+      }
+    } catch (err) {
+      authError.removeAttribute('hidden');
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    sessionStorage.removeItem('arc_admin_passcode');
+    checkAuth();
+  });
+
+  checkAuth();
+</script>
