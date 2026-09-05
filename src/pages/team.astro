@@ -14,13 +14,13 @@ const { session: activeSession, members } = await getTeamBySession(currentSessio
 
 <Base title={`Team ${activeSession.session_label} — Ashesi Research Club`}>
   <main>
-    <div class="header-row">
-      <div>
-        <div class="eyebrow">The masthead</div>
-        <h1>Who runs the Club</h1>
-        <p class="lede">The executive board & editorial desk — leaders and students who commission, write, fact-check, and design every profile.</p>
-      </div>
+    <header class="page-header">
+      <div class="eyebrow">The masthead</div>
+      <h1>Who runs the Club</h1>
+      <p class="lede">The executive board & editorial desk — leaders and students who commission, write, fact-check, and design every profile.</p>
+    </header>
 
+    <div class="archive-bar">
       <div class="archive-box">
         <label for="session-select" class="archive-label">Academic Session Archive</label>
         <select id="session-select" class="session-dropdown">
@@ -63,12 +63,8 @@ const { session: activeSession, members } = await getTeamBySession(currentSessio
 <style>
   main { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
   
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    margin-bottom: 24px;
+  .page-header {
+    margin-bottom: 28px;
   }
 
   .eyebrow {
@@ -81,14 +77,17 @@ const { session: activeSession, members } = await getTeamBySession(currentSessio
   }
   
   h1 { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1.04; color: var(--ink); margin: 12px 0 8px; }
-  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 540px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); max-width: 100%; }
 
+  .archive-bar {
+    margin-bottom: 24px;
+  }
   .archive-box {
     border: 1px solid var(--ink);
-    padding: 16px;
+    padding: 14px 18px;
     background: #fafafa;
-    min-width: 240px;
-    margin-top: 12px;
+    display: inline-block;
+    min-width: 280px;
   }
   .archive-label {
     display: block;
