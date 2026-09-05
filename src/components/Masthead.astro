@@ -1,15 +1,17 @@
 ---
-import ArcLogo from './ArcLogo.astro';
+import ArcLogo from "./ArcLogo.astro";
 
 const links = [
-  ['/articles/', 'Articles'],
-  ['/researchers/', 'Researchers'],
-  ['/team/', 'Team'],
-  ['/about/', 'About'],
+  ["/articles/", "Articles"],
+  ["/researchers/", "Researchers"],
+  ["/team/", "Team"],
+  ["/about/", "About"],
 ];
 const path = Astro.url.pathname;
-const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href.replace(/\/$/, '')));
+const isActive = (href: string) =>
+  href === "/" ? path === "/" : path.startsWith(href.replace(/\/$/, ""));
 ---
+
 <header class="masthead">
   <div class="inner">
     <a href="/" class="wordmark" aria-label="Ashesi Research Club">
@@ -17,23 +19,57 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </a>
     <div class="actions-container">
       <nav class="nav-desktop">
-        {links.map(([href, label]) => (
-          <a href={href} class:list={{ active: isActive(href) }}>{label}</a>
-        ))}
+        {
+          links.map(([href, label]) => (
+            <a href={href} class:list={{ active: isActive(href) }}>
+              {label}
+            </a>
+          ))
+        }
       </nav>
       <div class="cta">
-        <a href="/apply/" class="arc-button" data-variant="primary" data-size="sm">Apply</a>
+        <a
+          href="/apply/"
+          class="arc-button"
+          data-variant="primary"
+          data-size="sm">Apply</a
+        >
       </div>
-      <button class="arc-iconbtn menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="mobile-nav">
-        <svg class="icon-menu" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-        <svg class="icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      <button
+        class="arc-iconbtn menu-btn"
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <svg
+          class="icon-menu"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"><path d="M3 6h18M3 12h18M3 18h18"></path></svg
+        >
+        <svg
+          class="icon-close"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"><path d="M5 5l14 14M19 5L5 19"></path></svg
+        >
       </button>
     </div>
   </div>
   <nav class="nav-mobile" id="mobile-nav" hidden>
-    {links.map(([href, label]) => (
-      <a href={href} class:list={{ active: isActive(href) }}>{label}</a>
-    ))}
+    {
+      links.map(([href, label]) => (
+        <a href={href} class:list={{ active: isActive(href) }}>
+          {label}
+        </a>
+      ))
+    }
   </nav>
 </header>
 
@@ -59,7 +95,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     align-items: center;
     gap: 32px;
   }
-  .nav-desktop { display: flex; gap: 22px; align-items: center; }
+  .nav-desktop {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+  }
   .nav-desktop a,
   .nav-mobile a {
     font-family: var(--font-sans);
@@ -69,36 +109,70 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     color: var(--ink);
     text-decoration: none;
   }
-  .nav-desktop a.active { text-decoration: underline; text-underline-offset: 5px; }
-  .wordmark { text-decoration: none; display: block; line-height: 0; }
-  .cta { display: flex; align-items: center; gap: 8px; }
-  .menu-btn { display: none; }
-  .menu-btn .icon-close { display: none; }
-  .menu-btn[aria-expanded="true"] .icon-menu { display: none; }
-  .menu-btn[aria-expanded="true"] .icon-close { display: block; }
+  .nav-desktop a.active {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
+  .wordmark {
+    text-decoration: none;
+    display: block;
+    line-height: 0;
+  }
+  .cta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .menu-btn {
+    display: none;
+  }
+  .menu-btn .icon-close {
+    display: none;
+  }
+  .menu-btn[aria-expanded="true"] .icon-menu {
+    display: none;
+  }
+  .menu-btn[aria-expanded="true"] .icon-close {
+    display: block;
+  }
   .nav-mobile {
     display: none;
     flex-direction: column;
     border-top: 1px solid var(--hairline);
     padding: var(--space-2) var(--pad-page-x);
   }
-  .nav-mobile a { display: flex; align-items: center; min-height: var(--touch-min); }
-  .nav-mobile a.active { text-decoration: underline; text-underline-offset: 5px; }
+  .nav-mobile a {
+    display: flex;
+    align-items: center;
+    min-height: var(--touch-min);
+  }
+  .nav-mobile a.active {
+    text-decoration: underline;
+    text-underline-offset: 5px;
+  }
 
   @media (max-width: 767px) {
-    .nav-desktop { display: none; }
-    .menu-btn { display: inline-flex; }
-    .actions-container { gap: 16px; }
-    .nav-mobile:not([hidden]) { display: flex; }
+    .nav-desktop {
+      display: none;
+    }
+    .menu-btn {
+      display: inline-flex;
+    }
+    .actions-container {
+      gap: 16px;
+    }
+    .nav-mobile:not([hidden]) {
+      display: flex;
+    }
   }
 </style>
 
 <script>
-  const btn = document.querySelector('.menu-btn');
-  const nav = document.getElementById('mobile-nav');
-  btn?.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!open));
-    nav?.toggleAttribute('hidden', open);
+  const btn = document.querySelector(".menu-btn");
+  const nav = document.getElementById("mobile-nav");
+  btn?.addEventListener("click", () => {
+    const open = btn.getAttribute("aria-expanded") === "true";
+    btn.setAttribute("aria-expanded", String(!open));
+    nav?.toggleAttribute("hidden", open);
   });
 </script>
