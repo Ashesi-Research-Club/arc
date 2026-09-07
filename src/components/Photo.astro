@@ -4,7 +4,7 @@ interface Props { src?: string; alt?: string; ratio?: string; label?: string; to
 const { src, alt = '', ratio = '16/9', label = 'Photograph', tone = 'light' } = Astro.props;
 ---
 {src ? (
-  <img src={src} alt={alt} style={`aspect-ratio:${ratio};width:100%;object-fit:cover`} />
+  <img src={src} alt={alt} style={`aspect-ratio:${ratio};width:100%;object-fit:cover;object-position:top center;`} />
 ) : (
   <div class="ph" data-tone={tone} style={`aspect-ratio:${ratio}`}>
     <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke-width="1.2">

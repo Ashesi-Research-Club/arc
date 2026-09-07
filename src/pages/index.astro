@@ -45,7 +45,7 @@ const researchers = await getResearchers();
         {secondary.map((a) => (
           <article class="secondary">
             <a href={`/articles/${a.slug}/`} aria-hidden="true" tabindex="-1">
-              <Photo src={a.featured_image} ratio="4/3" label={label(a.category_id)} />
+              <Photo src={a.featured_image} ratio="16/9" label={label(a.category_id)} />
             </a>
             <div>
               <CategoryEyebrow category={a.category_id} />
@@ -126,15 +126,19 @@ const researchers = await getResearchers();
     margin-bottom: 22px;
   }
   .secondary {
-    display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    gap: 28px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
-  .secondary + .secondary { margin-top: 40px; }
-  .secondary h2 { font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.1; margin: 10px 0 0; }
+  .secondary + .secondary {
+    margin-top: 48px;
+    padding-top: 48px;
+    border-top: 1px solid var(--hairline);
+  }
+  .secondary a { text-decoration: none; display: block; width: 100%; }
+  .secondary h2 { font-family: var(--font-display); font-weight: 400; font-size: 32px; line-height: 1.12; margin: 10px 0 0; }
   .secondary h2 a { color: var(--ink); text-decoration: none; }
-  .secondary p { font-family: var(--font-body); font-size: 16px; line-height: 1.55; color: var(--ink); margin: 12px 0 0; }
+  .secondary p { font-family: var(--font-body); font-size: 17px; line-height: 1.55; color: var(--ink); margin: 12px 0 0; }
   .sec-byline { margin-top: 16px; }
   .empty { font-family: var(--font-body); font-size: 16px; color: var(--muted); }
 
