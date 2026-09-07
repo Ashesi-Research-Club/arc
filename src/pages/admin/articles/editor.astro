@@ -110,6 +110,7 @@ if (articleId && supabase) {
             <button type="button" class="add-block-btn" data-type="paragraph">+ Paragraph</button>
             <button type="button" class="add-block-btn" data-type="heading">+ Heading</button>
             <button type="button" class="add-block-btn" data-type="pullquote">+ PullQuote</button>
+            <button type="button" class="add-block-btn" data-type="image">+ Image Block</button>
             <button type="button" class="add-block-btn" data-type="callout">+ TL;DR Callout</button>
             <button type="button" class="add-block-btn" data-type="checkpoint">+ Quiz Checkpoint</button>
             <button type="button" class="add-block-btn" data-type="code">+ Code Block</button>
@@ -245,6 +246,27 @@ if (articleId && supabase) {
           <label style="display:block; font-size: 12px; font-weight: 600; margin-top: 8px; margin-bottom: 4px;">Attribution (Cite)</label>
           <input class="arc-input block-field" data-idx="${idx}" data-key="cite" value="${b.data.cite || ''}" placeholder="Dr. Isaac Nyantakyi" />
         `;
+      } else if (b.block_type === 'image') {
+        innerHtml += `
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Image URL</label>
+          <input class="arc-input block-field" data-idx="${idx}" data-key="url" value="${b.data.url || ''}" placeholder="https://res.cloudinary.com/..." style="margin-bottom: 8px;" />
+          <div style="display: grid; grid-template-columns: 1fr 180px; gap: 12px;">
+            <div>
+              <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Caption (Optional)</label>
+              <input class="arc-input block-field" data-idx="${idx}" data-key="caption" value="${b.data.caption || ''}" placeholder="Figure 1: Dr. Nyantakyi testing antennas in lab" />
+            </div>
+            <div>
+              <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Aspect Ratio</label>
+              <select class="arc-input block-field" data-idx="${idx}" data-key="ratio">
+                <option value="16/9" ${b.data.ratio === '16/9' || !b.data.ratio ? 'selected' : ''}>16:9 Widescreen</option>
+                <option value="16/10" ${b.data.ratio === '16/10' ? 'selected' : ''}>16:10 Standard</option>
+                <option value="4/3" ${b.data.ratio === '4/3' ? 'selected' : ''}>4:3 Classic</option>
+                <option value="21/9" ${b.data.ratio === '21/9' ? 'selected' : ''}>21:9 Ultra-wide</option>
+                <option value="1/1" ${b.data.ratio === '1/1' ? 'selected' : ''}>1:1 Square</option>
+              </select>
+            </div>
+          </div>
+        `;
       } else if (b.block_type === 'callout') {
         innerHtml += `
           <div style="display: grid; grid-template-columns: 1fr 180px; gap: 12px; margin-bottom: 8px;">
@@ -360,6 +382,7 @@ if (articleId && supabase) {
       if (type === 'paragraph') initialData = { text: '' };
       else if (type === 'heading') initialData = { level: 2, text: '' };
       else if (type === 'pullquote') initialData = { quote: '', cite: '' };
+      else if (type === 'image') initialData = { url: '', caption: '', ratio: '16/9' };
       else if (type === 'callout') initialData = { title: 'TL;DR', variant: 'tldr', text: '' };
       else if (type === 'checkpoint') initialData = { question: '', options: ['', '', ''], correct: 0 };
       else if (type === 'code') initialData = { lang: 'python', code: '' };

@@ -67,7 +67,7 @@ export interface Article {
 export interface ArticleBlock {
   id: string;
   article_id: string;
-  block_type: 'paragraph' | 'heading' | 'pullquote' | 'callout' | 'code' | 'checkpoint' | 'audio' | 'multilingual';
+  block_type: 'paragraph' | 'heading' | 'pullquote' | 'callout' | 'code' | 'checkpoint' | 'audio' | 'multilingual' | 'image';
   order_index: number;
   data: Record<string, any>;
 }

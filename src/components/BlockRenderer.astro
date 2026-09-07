@@ -3,6 +3,7 @@ import PullQuote from './PullQuote.astro';
 import Checkpoint from './Checkpoint.astro';
 import CodeBlock from './CodeBlock.astro';
 import Callout from './Callout.astro';
+import Photo from './Photo.astro';
 import type { ArticleBlock } from '../lib/supabase';
 
 interface Props {
@@ -29,6 +30,14 @@ const { blocks } = Astro.props;
           <Callout title={block.data.title || 'TL;DR'} variant={block.data.variant || 'tldr'}>
             {block.data.text}
           </Callout>
+        );
+      
+      case 'image':
+        return (
+          <figure class="article-image-block">
+            <Photo src={block.data.url} ratio={block.data.ratio || '16/9'} alt={block.data.caption || 'Article image'} label={block.data.caption ? '' : 'Photograph'} />
+            {block.data.caption && <figcaption class="image-caption">{block.data.caption}</figcaption>}
+          </figure>
         );
       
       case 'checkpoint':
@@ -77,5 +86,15 @@ const { blocks } = Astro.props;
     color: var(--ink);
     margin: 32px 0 12px;
     line-height: 1.2;
+  }
+  .article-image-block {
+    margin: 36px 0;
+  }
+  .image-caption {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.45;
   }
 </style>
