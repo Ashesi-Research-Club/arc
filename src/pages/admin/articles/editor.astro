@@ -110,6 +110,7 @@ if (articleId && supabase) {
             <button type="button" class="add-block-btn" data-type="paragraph">+ Paragraph</button>
             <button type="button" class="add-block-btn" data-type="heading">+ Heading</button>
             <button type="button" class="add-block-btn" data-type="pullquote">+ PullQuote</button>
+            <button type="button" class="add-block-btn" data-type="callout">+ TL;DR Callout</button>
             <button type="button" class="add-block-btn" data-type="checkpoint">+ Quiz Checkpoint</button>
             <button type="button" class="add-block-btn" data-type="code">+ Code Block</button>
           </div>
@@ -244,6 +245,25 @@ if (articleId && supabase) {
           <label style="display:block; font-size: 12px; font-weight: 600; margin-top: 8px; margin-bottom: 4px;">Attribution (Cite)</label>
           <input class="arc-input block-field" data-idx="${idx}" data-key="cite" value="${b.data.cite || ''}" placeholder="Dr. Isaac Nyantakyi" />
         `;
+      } else if (b.block_type === 'callout') {
+        innerHtml += `
+          <div style="display: grid; grid-template-columns: 1fr 180px; gap: 12px; margin-bottom: 8px;">
+            <div>
+              <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Callout Label / Header</label>
+              <input class="arc-input block-field" data-idx="${idx}" data-key="title" value="${b.data.title || 'TL;DR'}" placeholder="e.g. TL;DR or KEY TAKEAWAYS" />
+            </div>
+            <div>
+              <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Style Variant</label>
+              <select class="arc-input block-field" data-idx="${idx}" data-key="variant">
+                <option value="tldr" ${b.data.variant === 'tldr' ? 'selected' : ''}>TL;DR Paper Box</option>
+                <option value="note" ${b.data.variant === 'note' ? 'selected' : ''}>Clean Note Card</option>
+                <option value="aside" ${b.data.variant === 'aside' ? 'selected' : ''}>Aside Accent Line</option>
+              </select>
+            </div>
+          </div>
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Callout Text / Bullet Points</label>
+          <textarea class="arc-input block-field" data-idx="${idx}" data-key="text" rows="4" style="width:100%; font-family: var(--font-body);" placeholder="Enter summary points, takeaway bullets, or ending notes...">${b.data.text || ''}</textarea>
+        `;
       } else if (b.block_type === 'checkpoint') {
         const opts = b.data.options || ['', '', ''];
         innerHtml += `
@@ -340,6 +360,7 @@ if (articleId && supabase) {
       if (type === 'paragraph') initialData = { text: '' };
       else if (type === 'heading') initialData = { level: 2, text: '' };
       else if (type === 'pullquote') initialData = { quote: '', cite: '' };
+      else if (type === 'callout') initialData = { title: 'TL;DR', variant: 'tldr', text: '' };
       else if (type === 'checkpoint') initialData = { question: '', options: ['', '', ''], correct: 0 };
       else if (type === 'code') initialData = { lang: 'python', code: '' };
 

@@ -2,6 +2,7 @@
 import PullQuote from './PullQuote.astro';
 import Checkpoint from './Checkpoint.astro';
 import CodeBlock from './CodeBlock.astro';
+import Callout from './Callout.astro';
 import type { ArticleBlock } from '../lib/supabase';
 
 interface Props {
@@ -22,6 +23,13 @@ const { blocks } = Astro.props;
       
       case 'pullquote':
         return <PullQuote cite={block.data.cite}>{block.data.quote}</PullQuote>;
+      
+      case 'callout':
+        return (
+          <Callout title={block.data.title || 'TL;DR'} variant={block.data.variant || 'tldr'}>
+            {block.data.text}
+          </Callout>
+        );
       
       case 'checkpoint':
         return (
