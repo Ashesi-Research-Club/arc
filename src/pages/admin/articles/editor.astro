@@ -52,6 +52,26 @@ if (articleId && supabase) {
           <textarea class="arc-input" id="art-excerpt" name="excerpt" rows="3" required>{articleData?.excerpt || ''}</textarea>
         </Field>
 
+        <details style="margin-bottom: 20px; border: 1px solid var(--hairline); padding: 14px; background: #fafafa;">
+          <summary style="font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink);">+ Optional Translations (French & Twi Title / Standfirst)</summary>
+          <div style="margin-top: 14px;" class="grid2">
+            <Field label="French Title" htmlFor="art-title-fr">
+              <input class="arc-input" id="art-title-fr" name="title_fr" value={articleData?.translations?.fr?.title || ''} placeholder="Titre en français..." />
+            </Field>
+            <Field label="Twi Title" htmlFor="art-title-twi">
+              <input class="arc-input" id="art-title-twi" name="title_twi" value={articleData?.translations?.twi?.title || ''} placeholder="Twi title..." />
+            </Field>
+          </div>
+          <div class="grid2" style="margin-top: 10px;">
+            <Field label="French Excerpt" htmlFor="art-excerpt-fr">
+              <textarea class="arc-input" id="art-excerpt-fr" name="excerpt_fr" rows="2" placeholder="Résumé en français...">{articleData?.translations?.fr?.excerpt || ''}</textarea>
+            </Field>
+            <Field label="Twi Excerpt" htmlFor="art-excerpt-twi">
+              <textarea class="arc-input" id="art-excerpt-twi" name="excerpt_twi" rows="2" placeholder="Mmoa koraa Twi...">{articleData?.translations?.twi?.excerpt || ''}</textarea>
+            </Field>
+          </div>
+        </details>
+
         <div class="grid3">
           <Field label="Category" htmlFor="art-cat" required>
             <select class="arc-input" id="art-cat" name="category_id" required>
@@ -220,8 +240,21 @@ if (articleId && supabase) {
 
       if (b.block_type === 'paragraph') {
         innerHtml += `
-          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Paragraph Text</label>
-          <textarea class="arc-input block-field" data-idx="${idx}" data-key="text" rows="4" style="width:100%; font-family: var(--font-body);">${b.data.text || ''}</textarea>
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">English Paragraph Text</label>
+          <textarea class="arc-input block-field" data-idx="${idx}" data-key="text" rows="3" style="width:100%; font-family: var(--font-body);">${b.data.text || ''}</textarea>
+          <details style="margin-top: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Translations (French & Twi)</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Paragraph</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="text_fr" rows="2" style="font-family: var(--font-body);">${b.data.text_fr || ''}</textarea>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Paragraph</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="text_twi" rows="2" style="font-family: var(--font-body);">${b.data.text_twi || ''}</textarea>
+              </div>
+            </div>
+          </details>
         `;
       } else if (b.block_type === 'heading') {
         innerHtml += `
@@ -407,6 +440,15 @@ if (articleId && supabase) {
     const formData = new FormData(form);
     const articleId = form.dataset.id || undefined;
 
+    const titleFr = formData.get('title_fr');
+    const excerptFr = formData.get('excerpt_fr');
+    const titleTwi = formData.get('title_twi');
+    const excerptTwi = formData.get('excerpt_twi');
+
+    const translations = {};
+    if (titleFr || excerptFr) translations.fr = { title: titleFr, excerpt: excerptFr };
+    if (titleTwi || excerptTwi) translations.twi = { title: titleTwi, excerpt: excerptTwi };
+
     const payload = {
       passcode: code,
       id: articleId,
@@ -421,6 +463,7 @@ if (articleId && supabase) {
       featured_image: formData.get('featured_image'),
       audio_url: formData.get('audio_url'),
       audio_duration: formData.get('audio_duration'),
+      translations: Object.keys(translations).length > 0 ? translations : undefined,
       status: 'published',
       blocks: blocks
     };

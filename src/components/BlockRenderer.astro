@@ -18,18 +18,31 @@ const { blocks } = Astro.props;
     switch (block.block_type) {
       case 'heading':
         if (block.data.level === 3) {
-          return <h3 id={`heading-${block.order_index}`}>{block.data.text}</h3>;
+          return <h3 id={`heading-${block.order_index}`} class="translatable-text" data-text-en={block.data.text} data-text-fr={block.data.text_fr || ''} data-text-twi={block.data.text_twi || ''}>{block.data.text}</h3>;
         }
-        return <h2 id={`heading-${block.order_index}`}>{block.data.text}</h2>;
+        return <h2 id={`heading-${block.order_index}`} class="translatable-text" data-text-en={block.data.text} data-text-fr={block.data.text_fr || ''} data-text-twi={block.data.text_twi || ''}>{block.data.text}</h2>;
       
       case 'pullquote':
-        return <PullQuote cite={block.data.cite}>{block.data.quote}</PullQuote>;
+        return (
+          <div class="translatable-quote" data-quote-en={block.data.quote} data-quote-fr={block.data.quote_fr || ''} data-quote-twi={block.data.quote_twi || ''}>
+            <PullQuote cite={block.data.cite}>{block.data.quote}</PullQuote>
+          </div>
+        );
       
       case 'callout':
         return (
-          <Callout title={block.data.title || 'TL;DR'} variant={block.data.variant || 'tldr'}>
-            {block.data.text}
-          </Callout>
+          <div class="translatable-callout" data-title-en={block.data.title || 'TL;DR'} data-text-en={block.data.text} data-title-fr={block.data.title_fr || ''} data-text-fr={block.data.text_fr || ''} data-title-twi={block.data.title_twi || ''} data-text-twi={block.data.text_twi || ''}>
+            <Callout title={block.data.title || 'TL;DR'} variant={block.data.variant || 'tldr'}>
+              {block.data.text}
+            </Callout>
+          </div>
+        );
+
+      case 'multilingual':
+        return (
+          <div class="multilingual-block translatable-text" data-text-en={block.data.english} data-text-fr={block.data.french || block.data.english} data-text-twi={block.data.twi || block.data.english}>
+            <p class="block-p">{block.data.english}</p>
+          </div>
         );
       
       case 'image':
@@ -54,7 +67,7 @@ const { blocks } = Astro.props;
       
       case 'paragraph':
       default:
-        return <p class="block-p">{block.data.text}</p>;
+        return <p class="block-p translatable-text" data-text-en={block.data.text} data-text-fr={block.data.text_fr || ''} data-text-twi={block.data.text_twi || ''}>{block.data.text}</p>;
     }
   })}
 </div>

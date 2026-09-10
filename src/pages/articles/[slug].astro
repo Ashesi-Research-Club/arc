@@ -63,14 +63,16 @@ const finePrint = [
   <main>
     <div class="head-row">
       <CategoryEyebrow category={article.category_id} />
-      <!-- Language switcher header toggle — EN default; FR & Twi on backlog -->
+      <!-- Interactive Language switcher header toggle -->
       <div class="langs" aria-label="Article language">
-        <span class="on">EN</span><span>FR</span><span>Twi</span>
+        <button type="button" class="lang-btn on" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="fr">FR</button>
+        <button type="button" class="lang-btn" data-lang="twi">Twi</button>
       </div>
     </div>
 
-    <h1>{article.title}</h1>
-    <p class="standfirst">{article.excerpt}</p>
+    <h1 data-title-en={article.title} data-title-fr={article.translations?.fr?.title || ''} data-title-twi={article.translations?.twi?.title || ''}>{article.title}</h1>
+    <p class="standfirst" data-excerpt-en={article.excerpt} data-excerpt-fr={article.translations?.fr?.excerpt || ''} data-excerpt-twi={article.translations?.twi?.excerpt || ''}>{article.excerpt}</p>
 
     <div class="byline-row">
       <Byline
@@ -102,22 +104,35 @@ const finePrint = [
       </div>
     )}
 
+    <!-- Interactive Reader Settings Panel -->
     <div class="settings-panel" hidden>
       <div class="panel-head">Reader settings</div>
-      {[
-        ['Body type', ['Serif', 'Sans']],
-        ['Text size', ['A−', 'A', 'A+']],
-        ['Background', ['White', 'Warm', 'Dark']],
-      ].map(([labelText, opts], row) => (
-        <div class="row">
-          <span>{labelText}</span>
-          <div class="seg">
-            {(opts as string[]).map((o, i) => (
-              <button type="button" class:list={{ on: i === (row === 1 ? 1 : 0) }} aria-disabled="true" title="Coming soon">{o}</button>
-            ))}
-          </div>
+      
+      <div class="row">
+        <span>Body type</span>
+        <div class="seg seg-font">
+          <button type="button" data-val="serif" class="on">Serif</button>
+          <button type="button" data-val="sans">Sans</button>
         </div>
-      ))}
+      </div>
+
+      <div class="row">
+        <span>Text size</span>
+        <div class="seg seg-size">
+          <button type="button" data-val="sm">A−</button>
+          <button type="button" data-val="md" class="on">A</button>
+          <button type="button" data-val="lg">A+</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <span>Background</span>
+        <div class="seg seg-theme">
+          <button type="button" data-val="white" class="on">White</button>
+          <button type="button" data-val="warm">Warm</button>
+          <button type="button" data-val="dark">Dark</button>
+        </div>
+      </div>
     </div>
 
     {article.featured_image && (
@@ -176,8 +191,8 @@ const finePrint = [
 
   .head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
   .langs { display: flex; gap: 2px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; }
-  .langs span { padding: 4px 8px; color: var(--muted); border-bottom: 2px solid transparent; cursor: pointer; }
-  .langs .on { color: var(--ink); border-bottom-color: var(--ink); }
+  .langs button { padding: 4px 8px; color: var(--muted); border: none; background: transparent; border-bottom: 2px solid transparent; cursor: pointer; font-family: var(--font-sans); font-size: 12px; font-weight: 600; }
+  .langs button.on { color: var(--ink); border-bottom-color: var(--ink); }
 
   h1 {
     font-family: var(--font-display);
@@ -315,6 +330,107 @@ const finePrint = [
   };
   wire('.listen', '.player');
   wire('.settings', '.settings-panel');
+
+  // Reader Settings Logic with LocalStorage Persistence
+  const mainEl = document.querySelector<HTMLElement>('main');
+  const defaultSettings = { font: 'serif', size: 'md', theme: 'white' };
+
+  const getSettings = () => {
+    try {
+      const stored = localStorage.getItem('arc_reader_settings');
+      return stored ? JSON.parse(stored) : defaultSettings;
+    } catch (e) {
+      return defaultSettings;
+    }
+  };
+
+  const saveSettings = (settings: Record<string, string>) => {
+    try {
+      localStorage.setItem('arc_reader_settings', JSON.stringify(settings));
+    } catch (e) {}
+  };
+
+  const applySettings = (settings: Record<string, string>) => {
+    document.body.setAttribute('data-reader-font', settings.font);
+    document.body.setAttribute('data-reader-size', settings.size);
+    document.body.setAttribute('data-reader-theme', settings.theme);
+
+    document.querySelectorAll('.seg-font button').forEach(btn => {
+      btn.classList.toggle('on', btn.getAttribute('data-val') === settings.font);
+    });
+    document.querySelectorAll('.seg-size button').forEach(btn => {
+      btn.classList.toggle('on', btn.getAttribute('data-val') === settings.size);
+    });
+    document.querySelectorAll('.seg-theme button').forEach(btn => {
+      btn.classList.toggle('on', btn.getAttribute('data-val') === settings.theme);
+    });
+  };
+
+  const currentSettings = getSettings();
+  applySettings(currentSettings);
+
+  document.querySelectorAll('.seg-font button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentSettings.font = btn.getAttribute('data-val') || 'serif';
+      saveSettings(currentSettings);
+      applySettings(currentSettings);
+    });
+  });
+  document.querySelectorAll('.seg-size button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentSettings.size = btn.getAttribute('data-val') || 'md';
+      saveSettings(currentSettings);
+      applySettings(currentSettings);
+    });
+  });
+  document.querySelectorAll('.seg-theme button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentSettings.theme = btn.getAttribute('data-val') || 'white';
+      saveSettings(currentSettings);
+      applySettings(currentSettings);
+    });
+  });
+
+  // Multilingual Switcher Logic
+  const langBtns = document.querySelectorAll<HTMLElement>('.lang-btn');
+  const articleTitleEl = document.querySelector<HTMLElement>('h1');
+  const articleExcerptEl = document.querySelector<HTMLElement>('.standfirst');
+
+  langBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang || 'en';
+      langBtns.forEach(b => b.classList.toggle('on', b === btn));
+
+      if (articleTitleEl) {
+        const transTitle = articleTitleEl.getAttribute(`data-title-${lang}`) || articleTitleEl.getAttribute('data-title-en');
+        if (transTitle) articleTitleEl.textContent = transTitle;
+      }
+      if (articleExcerptEl) {
+        const transExcerpt = articleExcerptEl.getAttribute(`data-excerpt-${lang}`) || articleExcerptEl.getAttribute('data-excerpt-en');
+        if (transExcerpt) articleExcerptEl.textContent = transExcerpt;
+      }
+
+      document.querySelectorAll<HTMLElement>('.translatable-text').forEach(el => {
+        const text = el.getAttribute(`data-text-${lang}`) || el.getAttribute('data-text-en');
+        if (text) el.textContent = text;
+      });
+
+      document.querySelectorAll<HTMLElement>('.translatable-quote').forEach(el => {
+        const quoteText = el.getAttribute(`data-quote-${lang}`) || el.getAttribute('data-quote-en');
+        const quoteInner = el.querySelector('blockquote p, blockquote');
+        if (quoteInner && quoteText) quoteInner.textContent = quoteText;
+      });
+
+      document.querySelectorAll<HTMLElement>('.translatable-callout').forEach(el => {
+        const title = el.getAttribute(`data-title-${lang}`) || el.getAttribute('data-title-en');
+        const text = el.getAttribute(`data-text-${lang}`) || el.getAttribute('data-text-en');
+        const titleEl = el.querySelector('.callout-title, h4, header');
+        const textEl = el.querySelector('.callout-body, p');
+        if (titleEl && title) titleEl.textContent = title;
+        if (textEl && text) textEl.textContent = text;
+      });
+    });
+  });
 
   // Interactive HTML5 Audio Player
   const audio = document.querySelector<HTMLAudioElement>('#article-audio');

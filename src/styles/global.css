@@ -579,3 +579,288 @@ textarea.arc-input {
     transition: none !important;
   }
 }
+
+/* ---- Interactive Reader Settings Overrides ---- */
+
+/* Theme: Whole Viewport Background & Ink */
+body[data-reader-theme="warm"] {
+  background-color: var(--tint-warm) !important;
+  color: #24211e !important;
+}
+
+body[data-reader-theme="warm"] header.masthead {
+  background-color: var(--tint-warm) !important;
+}
+
+body[data-reader-theme="dark"] {
+  background-color: var(--dark-bg) !important;
+  color: var(--dark-ink) !important;
+}
+
+/* Masthead & Logo in Dark Mode */
+body[data-reader-theme="dark"] header.masthead {
+  background: var(--dark-bg) !important;
+  border-bottom-color: var(--dark-hairline) !important;
+}
+
+body[data-reader-theme="dark"] .nav-desktop a,
+body[data-reader-theme="dark"] .nav-mobile a {
+  color: var(--dark-ink) !important;
+}
+
+body[data-reader-theme="dark"] .arc-logo {
+  filter: invert(1);
+}
+
+body[data-reader-theme="dark"] .cta .arc-button[data-variant="primary"] {
+  background: var(--dark-ink) !important;
+  color: var(--dark-bg) !important;
+  border-color: var(--dark-ink) !important;
+}
+
+/* General Text & Structure in Dark Mode */
+body[data-reader-theme="dark"] h1,
+body[data-reader-theme="dark"] .standfirst,
+body[data-reader-theme="dark"] .prose,
+body[data-reader-theme="dark"] .block-p,
+body[data-reader-theme="dark"] h2,
+body[data-reader-theme="dark"] h3,
+body[data-reader-theme="dark"] .count,
+body[data-reader-theme="dark"] .rc-name,
+body[data-reader-theme="dark"] .panel-head,
+body[data-reader-theme="dark"] .settings-panel .row > span,
+body[data-reader-theme="dark"] .meta,
+body[data-reader-theme="dark"] .meta a,
+body[data-reader-theme="dark"] .meta .writer,
+body[data-reader-theme="dark"] .arc-eyebrow-cat {
+  color: var(--dark-ink) !important;
+}
+
+body[data-reader-theme="dark"] .langs button {
+  color: var(--dark-muted) !important;
+}
+
+body[data-reader-theme="dark"] .langs button.on {
+  color: var(--dark-ink) !important;
+  border-bottom-color: var(--dark-ink) !important;
+}
+
+body[data-reader-theme="dark"] .byline-row,
+body[data-reader-theme="dark"] .applause,
+body[data-reader-theme="dark"] .fine {
+  border-color: var(--dark-hairline) !important;
+}
+
+body[data-reader-theme="dark"] .settings-panel,
+body[data-reader-theme="dark"] .researcher-card {
+  border-color: var(--dark-hairline) !important;
+  background: #1a1a1a !important;
+}
+
+body[data-reader-theme="dark"] .seg button {
+  color: var(--dark-ink) !important;
+  border-color: var(--dark-hairline) !important;
+}
+
+body[data-reader-theme="dark"] .seg button.on {
+  background: var(--dark-ink) !important;
+  color: var(--dark-bg) !important;
+}
+
+body[data-reader-theme="dark"] .arc-iconbtn {
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-iconbtn[data-variant="outline"] {
+  border-color: var(--dark-hairline) !important;
+}
+
+/* ---- Pull Quotes in Dark Mode ---- */
+body[data-reader-theme="dark"] .arc-pullquote {
+  border-top-color: var(--dark-hairline) !important;
+  border-bottom-color: var(--dark-hairline) !important;
+}
+body[data-reader-theme="dark"] .arc-pullquote blockquote,
+body[data-reader-theme="dark"] .translatable-quote blockquote,
+body[data-reader-theme="dark"] .translatable-quote blockquote p {
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-pullquote figcaption,
+body[data-reader-theme="dark"] .translatable-quote figcaption {
+  color: var(--dark-muted) !important;
+}
+
+/* ---- Callouts (TL;DR, Notes, Asides) in Dark Mode ---- */
+body[data-reader-theme="dark"] .arc-callout,
+body[data-reader-theme="dark"] .translatable-callout .arc-callout {
+  border-color: var(--dark-hairline) !important;
+  background: #1c1c1c !important;
+}
+body[data-reader-theme="dark"] .arc-callout[data-variant="aside"] {
+  border-left: 3px solid var(--dark-ink) !important;
+  background: transparent !important;
+}
+body[data-reader-theme="dark"] .arc-callout .head,
+body[data-reader-theme="dark"] .arc-callout .body,
+body[data-reader-theme="dark"] .arc-callout .body p,
+body[data-reader-theme="dark"] .arc-callout .body li,
+body[data-reader-theme="dark"] .arc-callout .body dt,
+body[data-reader-theme="dark"] .arc-callout .body strong {
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-callout .body dd {
+  color: var(--dark-muted) !important;
+}
+
+/* ---- Checkpoint Quizzes in Dark Mode ---- */
+body[data-reader-theme="dark"] .arc-checkpoint {
+  border-color: var(--dark-hairline) !important;
+  background: #181818 !important;
+}
+body[data-reader-theme="dark"] .arc-checkpoint .eyebrow,
+body[data-reader-theme="dark"] .arc-checkpoint .q {
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-checkpoint button {
+  border-color: var(--dark-hairline) !important;
+  color: var(--dark-ink) !important;
+  background: #242424 !important;
+}
+body[data-reader-theme="dark"] .arc-checkpoint button:hover {
+  background: #333333 !important;
+}
+body[data-reader-theme="dark"] .arc-checkpoint[data-revealed] button[data-good] {
+  background: var(--dark-ink) !important;
+  color: var(--dark-bg) !important;
+  border-color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-checkpoint[data-revealed] button[data-picked]:not([data-good]) {
+  border-color: #ff6b6b !important;
+  color: #ff6b6b !important;
+}
+
+/* ---- Code Blocks in Dark Mode ---- */
+body[data-reader-theme="dark"] .arc-code {
+  border-color: var(--dark-hairline) !important;
+  background: #161616 !important;
+}
+body[data-reader-theme="dark"] .arc-code .bar {
+  border-bottom-color: var(--dark-hairline) !important;
+}
+body[data-reader-theme="dark"] .arc-code .lang {
+  color: var(--dark-muted) !important;
+}
+body[data-reader-theme="dark"] .arc-code .copy {
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .arc-code pre {
+  color: #e6e6e6 !important;
+}
+
+/* ---- Audio Player in Dark Mode ---- */
+body[data-reader-theme="dark"] .player {
+  border-color: var(--dark-hairline) !important;
+  background: #181818 !important;
+}
+body[data-reader-theme="dark"] .player .track {
+  background: var(--dark-hairline) !important;
+}
+body[data-reader-theme="dark"] .player .track-progress {
+  background: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .player .time {
+  color: var(--dark-muted) !important;
+}
+
+/* ---- Glossary Terms & Links in Dark Mode ---- */
+body[data-reader-theme="dark"] .arc-glossary {
+  border-bottom-color: var(--dark-ink) !important;
+  color: var(--dark-ink) !important;
+}
+body[data-reader-theme="dark"] .prose a,
+body[data-reader-theme="dark"] .arc-link {
+  color: #38bdf8 !important;
+}
+
+/* Font Family: Body & All Article Content Blocks */
+body[data-reader-font="sans"] .prose,
+body[data-reader-font="sans"] .standfirst,
+body[data-reader-font="sans"] .block-p,
+body[data-reader-font="sans"] .article-blocks,
+body[data-reader-font="sans"] .block-p p,
+body[data-reader-font="sans"] .image-caption,
+body[data-reader-font="sans"] figcaption {
+  font-family: var(--font-sans) !important;
+}
+
+body[data-reader-font="serif"] .prose,
+body[data-reader-font="serif"] .standfirst,
+body[data-reader-font="serif"] .block-p,
+body[data-reader-font="serif"] .article-blocks,
+body[data-reader-font="serif"] .image-caption,
+body[data-reader-font="serif"] figcaption {
+  font-family: var(--font-body) !important;
+}
+
+/* Font Size Scaling: Standfirst, Paragraphs, Headings, Captions, Pullquotes */
+body[data-reader-size="sm"] .standfirst {
+  font-size: 18px !important;
+}
+body[data-reader-size="sm"] .block-p,
+body[data-reader-size="sm"] .prose p,
+body[data-reader-size="sm"] .prose ul,
+body[data-reader-size="sm"] .prose ol {
+  font-size: 16px !important;
+  line-height: 1.55 !important;
+}
+body[data-reader-size="sm"] .article-blocks h2 {
+  font-size: 26px !important;
+}
+body[data-reader-size="sm"] .article-blocks h3 {
+  font-size: 20px !important;
+}
+body[data-reader-size="sm"] .image-caption,
+body[data-reader-size="sm"] figcaption {
+  font-size: 12px !important;
+}
+
+body[data-reader-size="md"] .standfirst {
+  font-size: 21px !important;
+}
+body[data-reader-size="md"] .block-p,
+body[data-reader-size="md"] .prose p,
+body[data-reader-size="md"] .prose ul,
+body[data-reader-size="md"] .prose ol {
+  font-size: 19px !important;
+  line-height: 1.65 !important;
+}
+body[data-reader-size="md"] .article-blocks h2 {
+  font-size: 32px !important;
+}
+body[data-reader-size="md"] .article-blocks h3 {
+  font-size: 24px !important;
+}
+body[data-reader-size="md"] .image-caption,
+body[data-reader-size="md"] figcaption {
+  font-size: 13px !important;
+}
+
+body[data-reader-size="lg"] .standfirst {
+  font-size: 24px !important;
+}
+body[data-reader-size="lg"] .block-p,
+body[data-reader-size="lg"] .prose p,
+body[data-reader-size="lg"] .prose ul,
+body[data-reader-size="lg"] .prose ol {
+  font-size: 22px !important;
+  line-height: 1.7 !important;
+}
+body[data-reader-size="lg"] .article-blocks h2 {
+  font-size: 38px !important;
+}
+body[data-reader-size="lg"] .article-blocks h3 {
+  font-size: 28px !important;
+}
+body[data-reader-size="lg"] .image-caption,
+body[data-reader-size="lg"] figcaption {
+  font-size: 15px !important;
+}

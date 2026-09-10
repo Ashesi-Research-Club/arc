@@ -62,6 +62,7 @@ export interface Article {
   researcher?: Researcher;
   category?: Category;
   blocks?: ArticleBlock[];
+  translations?: Record<string, { title?: string; excerpt?: string }>;
 }
 
 export interface ArticleBlock {

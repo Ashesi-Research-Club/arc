@@ -27,6 +27,7 @@ export interface SaveArticleInput {
   funding_source?: string;
   audio_url?: string;
   audio_duration?: string;
+  translations?: Record<string, { title?: string; excerpt?: string }>;
   status: string;
   blocks: {
     block_type: string;
@@ -55,6 +56,7 @@ export async function saveArticle(input: SaveArticleInput): Promise<{ success: b
       funding_source: input.funding_source || null,
       audio_url: input.audio_url || null,
       audio_duration: input.audio_duration || null,
+      translations: input.translations || null,
       status: input.status || 'published'
     };
 
