@@ -72,9 +72,9 @@ const club = [
           btn.textContent = origText;
         }
       } catch (err) {
-        input.value = '';
-        input.placeholder = 'Subscribed!';
-        btn.textContent = '✓';
+        alert('Network error subscribing to newsletter. Please try again.');
+        btn.disabled = false;
+        btn.textContent = origText;
       }
     });
   }

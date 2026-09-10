@@ -362,7 +362,7 @@ export async function submitApplication(input: ApplicationInput): Promise<{ succ
 export async function subscribeNewsletter(email: string): Promise<{ success: boolean; error?: string }> {
   if (supabase) {
     const { error } = await supabase.from('newsletter_subscribers').insert([{ email }]);
-    if (error && !error.message.includes('unique constraint')) {
+    if (error && error.code !== '23505' && !error.message.includes('unique constraint') && !error.message.includes('already exists')) {
       return { success: false, error: error.message };
     }
     return { success: true };
