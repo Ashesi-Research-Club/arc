@@ -7,6 +7,7 @@ import Photo from '../../components/Photo.astro';
 import BlockRenderer from '../../components/BlockRenderer.astro';
 import { getArticleBySlug } from '../../lib/supabase';
 import { getEntry, render } from 'astro:content';
+import { minutes } from '../../lib/articles';
 
 export const prerender = false;
 
@@ -47,7 +48,7 @@ if (!article.blocks || article.blocks.length === 0) {
   }
 }
 
-const readMins = Math.max(3, Math.ceil((article.excerpt?.length || 200) / 100));
+const readMins = minutes(article);
 const finePrint = [
   article.collaborators && `Collaborators: ${article.collaborators}`,
   article.funding_source && `Funding: ${article.funding_source}`,

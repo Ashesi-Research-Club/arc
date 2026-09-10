@@ -258,12 +258,23 @@ export async function getResearcherBySlug(slug: string): Promise<Researcher | nu
 
 export async function getArticles(categoryId?: string): Promise<Article[]> {
   if (supabase) {
-    let query = supabase.from('articles').select('*, researcher:researchers(*), category:categories(*)').order('published_date', { ascending: false });
+    let query = supabase
+      .from('articles')
+      .select('*, researcher:researchers(*), category:categories(*), blocks:article_blocks(*)')
+      .order('published_date', { ascending: false });
+
     if (categoryId && categoryId !== 'all') {
       query = query.eq('category_id', categoryId);
     }
     const { data, error } = await query;
-    if (!error && data) return data;
+    if (!error && data) {
+      data.forEach((article: Article) => {
+        if (article.blocks && Array.isArray(article.blocks)) {
+          article.blocks.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+        }
+      });
+      return data;
+    }
   }
   
   if (categoryId && categoryId !== 'all') {
