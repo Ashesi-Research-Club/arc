@@ -49,17 +49,31 @@ const { blocks } = Astro.props;
         return (
           <figure class="article-image-block">
             <Photo src={block.data.url} ratio={block.data.ratio || '16/9'} alt={block.data.caption || 'Article image'} label={block.data.caption ? '' : 'Photograph'} />
-            {block.data.caption && <figcaption class="image-caption">{block.data.caption}</figcaption>}
+            {block.data.caption && (
+              <figcaption class="image-caption translatable-text" data-text-en={block.data.caption} data-text-fr={block.data.caption_fr || ''} data-text-twi={block.data.caption_twi || ''}>
+                {block.data.caption}
+              </figcaption>
+            )}
           </figure>
         );
       
       case 'checkpoint':
         return (
-          <Checkpoint
-            question={block.data.question}
-            options={block.data.options}
-            correct={block.data.correct}
-          />
+          <div
+            class="translatable-checkpoint"
+            data-q-en={block.data.question}
+            data-q-fr={block.data.question_fr || ''}
+            data-q-twi={block.data.question_twi || ''}
+            data-opts-en={JSON.stringify(block.data.options || [])}
+            data-opts-fr={JSON.stringify(block.data.options_fr || [])}
+            data-opts-twi={JSON.stringify(block.data.options_twi || [])}
+          >
+            <Checkpoint
+              question={block.data.question}
+              options={block.data.options}
+              correct={block.data.correct}
+            />
+          </div>
         );
       
       case 'code':

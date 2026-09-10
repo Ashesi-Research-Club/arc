@@ -271,6 +271,19 @@ if (articleId && supabase) {
               <input class="arc-input block-field" data-idx="${idx}" data-key="text" value="${b.data.text || ''}" />
             </div>
           </div>
+          <details style="margin-top: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Translations (French & Twi)</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Heading</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="text_fr" value="${b.data.text_fr || ''}" />
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Heading</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="text_twi" value="${b.data.text_twi || ''}" />
+              </div>
+            </div>
+          </details>
         `;
       } else if (b.block_type === 'pullquote') {
         innerHtml += `
@@ -278,6 +291,19 @@ if (articleId && supabase) {
           <textarea class="arc-input block-field" data-idx="${idx}" data-key="quote" rows="2" style="width:100%; font-family: var(--font-display);">${b.data.quote || ''}</textarea>
           <label style="display:block; font-size: 12px; font-weight: 600; margin-top: 8px; margin-bottom: 4px;">Attribution (Cite)</label>
           <input class="arc-input block-field" data-idx="${idx}" data-key="cite" value="${b.data.cite || ''}" placeholder="Dr. Isaac Nyantakyi" />
+          <details style="margin-top: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Translations (French & Twi Quote)</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Quote</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="quote_fr" rows="2" style="font-family: var(--font-display);">${b.data.quote_fr || ''}</textarea>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Quote</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="quote_twi" rows="2" style="font-family: var(--font-display);">${b.data.quote_twi || ''}</textarea>
+              </div>
+            </div>
+          </details>
         `;
       } else if (b.block_type === 'image') {
         innerHtml += `
@@ -299,6 +325,19 @@ if (articleId && supabase) {
               </select>
             </div>
           </div>
+          <details style="margin-top: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Caption Translations</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Caption</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="caption_fr" value="${b.data.caption_fr || ''}" />
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Caption</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="caption_twi" value="${b.data.caption_twi || ''}" />
+              </div>
+            </div>
+          </details>
         `;
       } else if (b.block_type === 'callout') {
         innerHtml += `
@@ -318,12 +357,48 @@ if (articleId && supabase) {
           </div>
           <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Callout Text / Bullet Points</label>
           <textarea class="arc-input block-field" data-idx="${idx}" data-key="text" rows="4" style="width:100%; font-family: var(--font-body);" placeholder="Enter summary points, takeaway bullets, or ending notes...">${b.data.text || ''}</textarea>
+          <details style="margin-top: 8px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Callout Translations</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Title</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="title_fr" value="${b.data.title_fr || ''}" style="margin-bottom: 6px;" />
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Callout Body</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="text_fr" rows="3">${b.data.text_fr || ''}</textarea>
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Title</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="title_twi" value="${b.data.title_twi || ''}" style="margin-bottom: 6px;" />
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Callout Body</label>
+                <textarea class="arc-input block-field" data-idx="${idx}" data-key="text_twi" rows="3">${b.data.text_twi || ''}</textarea>
+              </div>
+            </div>
+          </details>
         `;
       } else if (b.block_type === 'checkpoint') {
         const opts = b.data.options || ['', '', ''];
+        const optsFrStr = Array.isArray(b.data.options_fr) ? b.data.options_fr.join(', ') : (b.data.options_fr || '');
+        const optsTwiStr = Array.isArray(b.data.options_twi) ? b.data.options_twi.join(', ') : (b.data.options_twi || '');
         innerHtml += `
           <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 4px;">Quiz Question</label>
           <input class="arc-input block-field" data-idx="${idx}" data-key="question" value="${b.data.question || ''}" placeholder="How does ACGA relate to GPS?" />
+          <details style="margin-top: 6px; margin-bottom: 10px;">
+            <summary style="font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted);">+ Optional Question & Choice Translations</summary>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px;">
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Question</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="question_fr" value="${b.data.question_fr || ''}" style="margin-bottom: 6px;" />
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">French Choices (comma-separated)</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="options_fr" value="${optsFrStr}" placeholder="Choix 1, Choix 2, Choix 3" />
+              </div>
+              <div>
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Question</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="question_twi" value="${b.data.question_twi || ''}" style="margin-bottom: 6px;" />
+                <label style="font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px;">Twi Choices (comma-separated)</label>
+                <input class="arc-input block-field" data-idx="${idx}" data-key="options_twi" value="${optsTwiStr}" placeholder="Option 1, Option 2, Option 3" />
+              </div>
+            </div>
+          </details>
           <div style="margin-top: 10px;">
             <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 6px;">Choices (Select radio button for Correct Choice)</label>
             ${opts.map((opt, oIdx) => `
@@ -354,6 +429,9 @@ if (articleId && supabase) {
         const key = el.dataset.key;
         let val = el.value;
         if (key === 'level') val = Number(val);
+        if (key === 'options_fr' || key === 'options_twi') {
+          val = val.split(',').map(s => s.trim());
+        }
         blocks[idx].data[key] = val;
       });
     });

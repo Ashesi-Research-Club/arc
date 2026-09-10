@@ -55,6 +55,46 @@ const finePrint = [
 ]
   .filter(Boolean)
   .join(' · ');
+
+function hasFullTranslation(art: any, lang: 'fr' | 'twi'): boolean {
+  const titleTrans = art.translations?.[lang]?.title;
+  const excerptTrans = art.translations?.[lang]?.excerpt;
+  if (!titleTrans || !titleTrans.trim() || !excerptTrans || !excerptTrans.trim()) {
+    return false;
+  }
+
+  if (!art.blocks || art.blocks.length === 0) {
+    return true;
+  }
+
+  return art.blocks.every((b: any) => {
+    switch (b.block_type) {
+      case 'paragraph':
+      case 'heading':
+        return Boolean(b.data?.[`text_${lang}`]?.trim());
+      case 'pullquote':
+        return Boolean(b.data?.[`quote_${lang}`]?.trim());
+      case 'callout':
+        return Boolean(b.data?.[`text_${lang}`]?.trim());
+      case 'checkpoint':
+        return Boolean(b.data?.[`question_${lang}`]?.trim());
+      case 'image':
+        if (b.data?.caption && b.data.caption.trim()) {
+          return Boolean(b.data?.[`caption_${lang}`]?.trim());
+        }
+        return true;
+      case 'multilingual':
+        return Boolean(b.data?.[lang]?.trim());
+      case 'code':
+        return true;
+      default:
+        return true;
+    }
+  });
+}
+
+const hasFr = hasFullTranslation(article, 'fr');
+const hasTwi = hasFullTranslation(article, 'twi');
 ---
 
 <Base title={`${article.title} — Ashesi Research Club`} description={article.excerpt}>
@@ -63,11 +103,11 @@ const finePrint = [
   <main>
     <div class="head-row">
       <CategoryEyebrow category={article.category_id} />
-      <!-- Interactive Language switcher header toggle -->
+      <!-- Conditional Language switcher header toggle -->
       <div class="langs" aria-label="Article language">
         <button type="button" class="lang-btn on" data-lang="en">EN</button>
-        <button type="button" class="lang-btn" data-lang="fr">FR</button>
-        <button type="button" class="lang-btn" data-lang="twi">Twi</button>
+        {hasFr && <button type="button" class="lang-btn" data-lang="fr">FR</button>}
+        {hasTwi && <button type="button" class="lang-btn" data-lang="twi">Twi</button>}
       </div>
     </div>
 
@@ -424,10 +464,32 @@ const finePrint = [
       document.querySelectorAll<HTMLElement>('.translatable-callout').forEach(el => {
         const title = el.getAttribute(`data-title-${lang}`) || el.getAttribute('data-title-en');
         const text = el.getAttribute(`data-text-${lang}`) || el.getAttribute('data-text-en');
-        const titleEl = el.querySelector('.callout-title, h4, header');
-        const textEl = el.querySelector('.callout-body, p');
+        const titleEl = el.querySelector('.head');
+        const textEl = el.querySelector('.body');
         if (titleEl && title) titleEl.textContent = title;
         if (textEl && text) textEl.textContent = text;
+      });
+
+      document.querySelectorAll<HTMLElement>('.translatable-checkpoint').forEach(el => {
+        const question = el.getAttribute(`data-q-${lang}`) || el.getAttribute('data-q-en');
+        const qEl = el.querySelector('.q');
+        if (qEl && question) qEl.textContent = question;
+
+        const optsAttr = el.getAttribute(`data-opts-${lang}`) || el.getAttribute('data-opts-en');
+        if (optsAttr) {
+          try {
+            const opts = JSON.parse(optsAttr);
+            if (Array.isArray(opts) && opts.length > 0) {
+              const btnEls = el.querySelectorAll('.opts button');
+              btnEls.forEach((btn, idx) => {
+                if (opts[idx]) {
+                  const revealedSuffix = btn.textContent?.match(/\s+[✓✕]$/)?.[0] || '';
+                  btn.textContent = opts[idx] + revealedSuffix;
+                }
+              });
+            }
+          } catch (e) {}
+        }
       });
     });
   });
