@@ -1,0 +1,243 @@
+---
+import Base from '../../layouts/Base.astro';
+import Field from '../../components/Field.astro';
+import { getCategories, getArticles, supabase } from '../../lib/supabase';
+
+export const prerender = false;
+
+const categories = await getCategories();
+const articles = await getArticles();
+
+// Calculate article counts per category
+const articleCounts: Record<string, number> = {};
+articles.forEach((a) => {
+  const cat = a.category_id || 'other';
+  articleCounts[cat] = (articleCounts[cat] || 0) + 1;
+});
+---
+
+<Base title="Category Management — ARC Admin">
+  <main>
+    <div class="nav-bar">
+      <a href="/admin/" class="back-link">← Back to Editorial Desk</a>
+    </div>
+
+    <div class="header-row">
+      <div>
+        <div class="eyebrow">Editorial Desk</div>
+        <h1>Category Desk</h1>
+        <p class="lede">Manage section categories displayed on the homepage, archive filters, and article metadata.</p>
+      </div>
+    </div>
+
+    <div class="grid-layout">
+      <!-- Create / Edit Form Box -->
+      <div class="form-card">
+        <div class="card-title" id="form-card-title">Create New Category</div>
+        <form id="category-form">
+          <Field label="Category Name" htmlFor="cat-name" required>
+            <input class="arc-input" id="cat-name" name="name" placeholder="e.g. Sustainability & Climate" required />
+          </Field>
+
+          <Field label="Category Slug / ID" htmlFor="cat-id" hint="Unique URL identifier (lowercase-hyphenated)" required>
+            <input class="arc-input" id="cat-id" name="id" placeholder="e.g. sustainability-climate" required />
+          </Field>
+
+          <Field label="Description" htmlFor="cat-desc" hint="Short summary of research covered under this category">
+            <textarea class="arc-input" id="cat-desc" name="description" rows="3" placeholder="Clean energy, climate resilience, ecological economics, and environmental policy."></textarea>
+          </Field>
+
+          <div class="form-actions">
+            <button type="submit" id="save-cat-btn" class="arc-button" data-variant="primary" style="width: 100%;">Save Category</button>
+            <button type="button" id="cancel-edit-btn" class="arc-button" data-variant="text" style="width: 100%; margin-top: 8px;" hidden>Cancel Editing</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Categories List -->
+      <div class="list-container">
+        <div class="card-title">Existing Categories ({categories.length})</div>
+        <div class="categories-grid">
+          {categories.map((c) => (
+            <div class="category-card" data-id={c.id} data-name={c.name} data-description={c.description || ''}>
+              <div class="cat-head">
+                <div class="cat-name-box">
+                  <span class="cat-dot" style={`background: var(--cat-${c.id}, var(--ink))`}></span>
+                  <span class="cat-name">{c.name}</span>
+                </div>
+                <span class="cat-badge">{articleCounts[c.id] || 0} story{(articleCounts[c.id] || 0) === 1 ? '' : 'ies'}</span>
+              </div>
+              <div class="cat-slug">URL: <code>/category/{c.id}/</code></div>
+              <p class="cat-desc">{c.description || 'No description provided.'}</p>
+              <div class="cat-actions">
+                <button type="button" class="arc-button btn-edit" data-id={c.id} data-variant="secondary" style="padding: 4px 12px; font-size: 12px;">Edit</button>
+                <button type="button" class="arc-button btn-delete" data-id={c.id} data-name={c.name} data-variant="text" style="padding: 4px 12px; font-size: 12px; color: #d32f2f;">Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 1040px; margin: 0 auto; padding: 48px 24px 96px; }
+  .nav-bar { margin-bottom: 24px; }
+  .back-link { font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; }
+  
+  .header-row { margin-bottom: 36px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 44px; color: var(--ink); margin: 8px 0; }
+  .lede { font-family: var(--font-body); font-size: 18px; color: var(--muted); max-width: 640px; }
+
+  .grid-layout { display: grid; grid-template-columns: 360px 1fr; gap: 32px; align-items: start; }
+  
+  .form-card { border: 1px solid var(--ink); padding: 24px; background: #fff; position: sticky; top: 24px; }
+  .card-title { font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  
+  .list-container { border: 1px solid var(--hairline); padding: 24px; background: #fff; }
+  .categories-grid { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+
+  .category-card { border: 1px solid var(--hairline); padding: 18px; background: #fafafa; }
+  .cat-head { display: flex; justify-content: space-between; align-items: center; }
+  .cat-name-box { display: flex; align-items: center; gap: 8px; }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .cat-name { font-family: var(--font-display); font-size: 20px; color: var(--ink); }
+  .cat-badge { font-family: var(--font-sans); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #eee; padding: 2px 8px; color: var(--ink); }
+  .cat-slug { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 6px 0; }
+  .cat-desc { font-family: var(--font-body); font-size: 14px; color: var(--ink); line-height: 1.45; margin: 8px 0 14px; }
+  .cat-actions { display: flex; gap: 8px; }
+
+  @media (max-width: 899px) {
+    .grid-layout { grid-template-columns: 1fr; }
+    .form-card { position: static; }
+  }
+</style>
+
+<script>
+  const code = sessionStorage.getItem('arc_admin_passcode');
+  if (!code) {
+    window.location.href = '/admin/';
+  }
+
+  const form = document.getElementById('category-form') as HTMLFormElement;
+  const nameInput = document.getElementById('cat-name') as HTMLInputElement;
+  const idInput = document.getElementById('cat-id') as HTMLInputElement;
+  const descInput = document.getElementById('cat-desc') as HTMLTextAreaElement;
+  const saveBtn = document.getElementById('save-cat-btn') as HTMLButtonElement;
+  const cancelBtn = document.getElementById('cancel-edit-btn') as HTMLButtonElement;
+  const cardTitle = document.getElementById('form-card-title')!;
+
+  let editingId: string | null = null;
+
+  // Auto-generate slug/ID from category name if user hasn't manually edited ID
+  nameInput.addEventListener('input', () => {
+    if (!editingId && (!idInput.value || idInput.dataset.userEdited !== 'true')) {
+      idInput.value = nameInput.value.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+  });
+
+  idInput.addEventListener('input', () => {
+    idInput.dataset.userEdited = 'true';
+  });
+
+  // Edit category handler
+  document.querySelectorAll('.btn-edit').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.category-card') as HTMLElement;
+      if (!card) return;
+
+      editingId = card.dataset.id || null;
+      nameInput.value = card.dataset.name || '';
+      idInput.value = card.dataset.id || '';
+      idInput.disabled = true; // ID is primary key
+      descInput.value = card.dataset.description || '';
+
+      cardTitle.textContent = `Edit Category: ${card.dataset.name}`;
+      saveBtn.textContent = 'Update Category';
+      cancelBtn.removeAttribute('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Cancel edit handler
+  cancelBtn.addEventListener('click', () => {
+    editingId = null;
+    form.reset();
+    idInput.disabled = false;
+    idInput.dataset.userEdited = 'false';
+    cardTitle.textContent = 'Create New Category';
+    saveBtn.textContent = 'Save Category';
+    cancelBtn.setAttribute('hidden', '');
+  });
+
+  // Delete category handler
+  document.querySelectorAll('.btn-delete').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const catId = (btn as HTMLElement).dataset.id;
+      const catName = (btn as HTMLElement).dataset.name;
+      if (!catId) return;
+
+      if (!confirm(`Are you sure you want to delete the category "${catName}"?`)) return;
+
+      try {
+        const res = await fetch('/api/admin/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passcode: code, action: 'delete', id: catId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert(`Failed to delete category: ${data.error}`);
+        }
+      } catch (err) {
+        alert('Network error deleting category.');
+      }
+    });
+  });
+
+  // Form submission handler
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    const payload = {
+      passcode: code,
+      action: 'save',
+      id: idInput.value.trim().toLowerCase(),
+      name: nameInput.value.trim(),
+      description: descInput.value.trim()
+    };
+
+    try {
+      const res = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(`Failed to save category: ${data.error}`);
+        saveBtn.disabled = false;
+        saveBtn.textContent = editingId ? 'Update Category' : 'Save Category';
+      }
+    } catch (err) {
+      alert('Network error saving category.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingId ? 'Update Category' : 'Save Category';
+    }
+  });
+</script>

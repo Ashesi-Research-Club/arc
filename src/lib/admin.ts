@@ -233,3 +233,21 @@ export async function updateApplicationStatus(id: string, status: string): Promi
   if (error) return { success: false, error: error.message };
   return { success: true };
 }
+
+export async function saveCategory(category: { id: string; name: string; description: string }): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) return { success: false, error: 'Supabase client not connected' };
+  const { error } = await supabase.from('categories').upsert([category]);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}
+
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) return { success: false, error: 'Supabase client not connected' };
+  const { data: articles } = await supabase.from('articles').select('id').eq('category_id', id);
+  if (articles && articles.length > 0) {
+    return { success: false, error: `Cannot delete category: ${articles.length} article(s) are assigned to it.` };
+  }
+  const { error } = await supabase.from('categories').delete().eq('id', id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
+}

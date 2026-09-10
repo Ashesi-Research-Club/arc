@@ -1,11 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getArticles, getResearchers, getAcademicSessions, supabase } from '../../lib/supabase';
+import { getArticles, getResearchers, getCategories, getAcademicSessions, supabase } from '../../lib/supabase';
 
 export const prerender = false;
 
 const articles = await getArticles();
 const researchers = await getResearchers();
+const categories = await getCategories();
 const sessions = await getAcademicSessions();
 
 let pendingPitchesCount = 0;
@@ -35,7 +36,7 @@ if (supabase) {
         <div>
           <div class="eyebrow">Publisher Dashboard</div>
           <h1>Editorial Desk</h1>
-          <p class="lede">Manage magazine articles, interactive blocks, researchers, executive team archives, and research pitch applications.</p>
+          <p class="lede">Manage magazine articles, interactive blocks, categories, researchers, executive team archives, and research pitch applications.</p>
         </div>
         <button id="logout-btn" class="arc-button" data-variant="text">Lock Session</button>
       </div>
@@ -46,6 +47,11 @@ if (supabase) {
           <div class="m-val">{articles.length}</div>
           <div class="m-lbl">Published Articles</div>
           <div class="m-action">Manage Articles →</div>
+        </a>
+        <a href="/admin/categories/" class="metric-card">
+          <div class="m-val">{categories.length}</div>
+          <div class="m-lbl">Editorial Categories</div>
+          <div class="m-action">Manage Categories →</div>
         </a>
         <a href="/admin/researchers/" class="metric-card">
           <div class="m-val">{researchers.length}</div>
@@ -72,6 +78,14 @@ if (supabase) {
           <div class="mod-actions">
             <a href="/admin/articles/editor/" class="arc-button" data-variant="primary">+ Create New Article</a>
             <a href="/admin/articles/" class="arc-button" data-variant="secondary">View All Articles</a>
+          </div>
+        </div>
+
+        <div class="mod-card">
+          <h2>Research Categories</h2>
+          <p>Create, edit, and delete editorial sections and topic categories used across the web magazine.</p>
+          <div class="mod-actions">
+            <a href="/admin/categories/" class="arc-button" data-variant="secondary">Manage Categories ({categories.length})</a>
           </div>
         </div>
 

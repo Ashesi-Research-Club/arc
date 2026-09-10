@@ -384,3 +384,36 @@ export async function incrementClaps(articleId: string): Promise<{ success: bool
   }
   return { success: true, newClaps: 1 };
 }
+
+export async function saveCategory(category: Category): Promise<{ success: boolean; error?: string }> {
+  if (supabase) {
+    const { error } = await supabase.from('categories').upsert([category]);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  }
+  const existingIdx = MOCK_CATEGORIES.findIndex(c => c.id === category.id);
+  if (existingIdx >= 0) {
+    MOCK_CATEGORIES[existingIdx] = category;
+  } else {
+    MOCK_CATEGORIES.push(category);
+  }
+  return { success: true };
+}
+
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  if (supabase) {
+    // Check if any articles reference this category
+    const { data: articles } = await supabase.from('articles').select('id').eq('category_id', id);
+    if (articles && articles.length > 0) {
+      return { success: false, error: `Cannot delete category: ${articles.length} article(s) are assigned to it.` };
+    }
+    const { error } = await supabase.from('categories').delete().eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  }
+  const idx = MOCK_CATEGORIES.findIndex(c => c.id === id);
+  if (idx >= 0) {
+    MOCK_CATEGORIES.splice(idx, 1);
+  }
+  return { success: true };
+}
