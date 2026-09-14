@@ -179,6 +179,28 @@ export async function saveAcademicSession(session: { id: string; session_label: 
   return { success: true };
 }
 
+export async function deleteAcademicSession(sessionId: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) return { success: false, error: 'Supabase client not connected' };
+  
+  // Delete associated team roles first
+  await supabase.from('team_roles').delete().eq('session_id', sessionId);
+  
+  // Delete the session record
+  const { error } = await supabase.from('academic_sessions').delete().eq('id', sessionId);
+  if (error) return { success: false, error: error.message };
+
+  // Ensure at least one remaining session is marked active/current
+  const { data: remaining } = await supabase.from('academic_sessions').select('id, is_current').order('start_year', { ascending: false });
+  if (remaining && remaining.length > 0) {
+    const hasActive = remaining.some(s => s.is_current);
+    if (!hasActive) {
+      await supabase.from('academic_sessions').update({ is_current: true }).eq('id', remaining[0].id);
+    }
+  }
+
+  return { success: true };
+}
+
 export async function saveTeamRole(input: {
   id?: string;
   session_id: string;
@@ -193,7 +215,6 @@ export async function saveTeamRole(input: {
   if (!supabase) return { success: false, error: 'Supabase client not connected' };
 
   try {
-    // Create member if not present or update
     const memberPayload = {
       name: input.name,
       avatar_url: input.avatar_url || null,
@@ -201,10 +222,21 @@ export async function saveTeamRole(input: {
       year_of_study: input.year_of_study
     };
 
-    const { data: member, error: memErr } = await supabase.from('team_members').insert([memberPayload]).select('id').single();
-    const memberId = member?.id;
+    let memberId: string | undefined;
 
-    if (!memberId && memErr) return { success: false, error: memErr.message };
+    if (input.id) {
+      const { data: existingRole } = await supabase.from('team_roles').select('member_id').eq('id', input.id).single();
+      if (existingRole?.member_id) {
+        memberId = existingRole.member_id;
+        await supabase.from('team_members').update(memberPayload).eq('id', memberId);
+      }
+    }
+
+    if (!memberId) {
+      const { data: member, error: memErr } = await supabase.from('team_members').insert([memberPayload]).select('id').single();
+      memberId = member?.id;
+      if (!memberId && memErr) return { success: false, error: memErr.message };
+    }
 
     const rolePayload = {
       session_id: input.session_id,
@@ -227,6 +259,13 @@ export async function saveTeamRole(input: {
   } catch (err: any) {
     return { success: false, error: err.message };
   }
+}
+
+export async function deleteTeamRole(roleId: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) return { success: false, error: 'Supabase client not connected' };
+  const { error } = await supabase.from('team_roles').delete().eq('id', roleId);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
 }
 
 export async function updateApplicationStatus(id: string, status: string): Promise<{ success: boolean; error?: string }> {

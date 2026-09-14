@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
-import { saveAcademicSession, saveTeamRole, verifyPasscode } from '../../../lib/admin';
+import { saveAcademicSession, deleteAcademicSession, saveTeamRole, deleteTeamRole, verifyPasscode } from '../../../lib/admin';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const payload = await request.json();
-    const { passcode, type, data } = payload;
+    const { passcode, type, data, id } = payload;
 
     if (!verifyPasscode(passcode)) {
       return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), { status: 401 });
@@ -15,8 +15,14 @@ export const POST: APIRoute = async ({ request }) => {
     if (type === 'session') {
       const res = await saveAcademicSession(data);
       return new Response(JSON.stringify(res), { status: res.success ? 200 : 400 });
+    } else if (type === 'delete_session') {
+      const res = await deleteAcademicSession(id);
+      return new Response(JSON.stringify(res), { status: res.success ? 200 : 400 });
     } else if (type === 'role') {
       const res = await saveTeamRole(data);
+      return new Response(JSON.stringify(res), { status: res.success ? 200 : 400 });
+    } else if (type === 'delete_role') {
+      const res = await deleteTeamRole(id);
       return new Response(JSON.stringify(res), { status: res.success ? 200 : 400 });
     }
 

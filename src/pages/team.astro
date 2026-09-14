@@ -43,7 +43,7 @@ const { session: activeSession, members } = await getTeamBySession(currentSessio
         <div>
           {i > 0 && <hr class="arc-rule" />}
           <div class="member">
-            <Avatar name={m.name} size={64} />
+            <Avatar name={m.name} src={m.avatar_url} size={64} />
             <div>
               <div class="name">{m.name}</div>
               <div class="role">{m.role}</div>

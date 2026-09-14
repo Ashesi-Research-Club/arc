@@ -107,12 +107,27 @@ const STANDARD_ROLES = [
           }
         </select>
       </div>
-      <div class="sess-status">
+      <div class="sess-status" style="display: flex; align-items: center; gap: 12px;">
         {
           activeSession.is_current ? (
             <span class="status-tag active">ACTIVE TERM</span>
           ) : (
             <span class="status-tag archive">HISTORICAL ARCHIVE</span>
+          )
+        }
+        {
+          sessions.length > 1 && (
+            <button
+              type="button"
+              id="delete-session-btn"
+              class="arc-button"
+              data-variant="secondary"
+              style="padding: 4px 10px; font-size: 12px; color: #d32f2f; border-color: #d32f2f; cursor: pointer;"
+              data-id={activeSession.id}
+              data-label={activeSession.session_label}
+            >
+              Delete Session
+            </button>
           )
         }
       </div>
@@ -128,6 +143,7 @@ const STANDARD_ROLES = [
             <th>Role Title</th>
             <th>Specialization & Class</th>
             <th>Description</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -152,6 +168,22 @@ const STANDARD_ROLES = [
                   {m.year_of_study}
                 </td>
                 <td class="desc-cell">{m.description}</td>
+                <td class="actions-cell">
+                  <button
+                    type="button"
+                    class="btn-edit-role arc-button"
+                    data-variant="secondary"
+                    style="padding: 4px 10px; font-size: 12px; cursor: pointer;"
+                    data-role={JSON.stringify(m)}>Edit</button>
+                  <button
+                    type="button"
+                    class="btn-delete-role arc-button"
+                    data-variant="secondary"
+                    style="padding: 4px 10px; font-size: 12px; color: #d32f2f; border-color: #d32f2f; cursor: pointer;"
+                    data-id={m.id}
+                    data-name={m.name}
+                    data-role-title={m.role}>Delete</button>
+                </td>
               </tr>
             ))
           }
@@ -233,7 +265,7 @@ const STANDARD_ROLES = [
     <div id="role-modal" class="modal-backdrop" hidden>
       <div class="modal-card">
         <div class="modal-head">
-          <h2>Add Executive Role ({activeSession.session_label})</h2>
+          <h2 id="role-modal-head-title">Add Executive Role ({activeSession.session_label})</h2>
           <button type="button" id="close-role-btn" class="close-btn"
             >Close</button
           >
@@ -243,6 +275,7 @@ const STANDARD_ROLES = [
 
         <form id="role-form">
           <input type="hidden" name="session_id" value={activeSession.id} />
+          <input type="hidden" id="role-id-input" name="id" value="" />
 
           <Field
             label="Select Executive Member"
@@ -567,7 +600,10 @@ const STANDARD_ROLES = [
 
 <script
   is:inline
-  define:vars={{ existingRoles: members.map((m) => m.role.toLowerCase()) }}
+  define:vars={{
+    sessionLabel: activeSession.session_label,
+    existingRoles: members.map((m) => ({ id: m.id, role: m.role.toLowerCase() })),
+  }}
 >
   const code = sessionStorage.getItem("arc_admin_passcode");
   if (!code) window.location.href = "/admin/";
@@ -579,9 +615,68 @@ const STANDARD_ROLES = [
     window.location.href = url.toString();
   });
 
+  const deleteSessBtn = document.getElementById("delete-session-btn");
+  if (deleteSessBtn) {
+    deleteSessBtn.addEventListener("click", async () => {
+      const sessId = deleteSessBtn.dataset.id;
+      const sessLabel = deleteSessBtn.dataset.label;
+
+      if (!confirm(`Are you sure you want to delete the academic session '${sessLabel}' and all associated executive roles? This action cannot be undone.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/team", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ passcode: code, type: "delete_session", id: sessId }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = "/admin/team/";
+        } else {
+          alert(`Delete failed: ${data.error || "Unknown error"}`);
+        }
+      } catch (err) {
+        alert("Network error deleting academic session.");
+      }
+    });
+  }
+
   const sessionModal = document.getElementById("session-modal");
   const roleModal = document.getElementById("role-modal");
   const errorBanner = document.getElementById("role-error-msg");
+  const modalTitle = document.getElementById("role-modal-head-title");
+  const roleIdInput = document.getElementById("role-id-input");
+  const saveRoleBtn = document.getElementById("save-role-btn");
+
+  const memberSelect = document.getElementById("member-select");
+  const nameInput = document.getElementById("m-name");
+  const specInput = document.getElementById("m-spec");
+  const yearInput = document.getElementById("m-year");
+  const descInput = document.getElementById("m-desc");
+  const orderInput = document.getElementById("m-order");
+  const avatarInput = document.getElementById("m-avatar");
+  const roleSelect = document.getElementById("role-select");
+  const customRoleInput = document.getElementById("custom-role-input");
+
+  const resetRoleForm = () => {
+    roleIdInput.value = "";
+    errorBanner.setAttribute("hidden", "");
+    modalTitle.textContent = `Add Executive Role (${sessionLabel})`;
+    saveRoleBtn.textContent = "Save Executive Role";
+    saveRoleBtn.disabled = false;
+    memberSelect.value = "__NEW__";
+    nameInput.value = "";
+    specInput.value = "";
+    yearInput.value = "";
+    descInput.value = "";
+    orderInput.value = existingRoles.length + 1;
+    avatarInput.value = "";
+    roleSelect.value = "Editor-in-Chief";
+    customRoleInput.style.display = "none";
+    customRoleInput.value = "";
+  };
 
   document
     .getElementById("open-session-modal")
@@ -595,7 +690,10 @@ const STANDARD_ROLES = [
 
   document
     .getElementById("open-role-modal")
-    .addEventListener("click", () => roleModal.removeAttribute("hidden"));
+    .addEventListener("click", () => {
+      resetRoleForm();
+      roleModal.removeAttribute("hidden");
+    });
   document
     .getElementById("close-role-btn")
     .addEventListener("click", () => roleModal.setAttribute("hidden", ""));
@@ -603,13 +701,76 @@ const STANDARD_ROLES = [
     if (e.target === roleModal) roleModal.setAttribute("hidden", "");
   });
 
-  // Member Selector Logic
-  const memberSelect = document.getElementById("member-select");
-  const nameInput = document.getElementById("m-name");
-  const specInput = document.getElementById("m-spec");
-  const yearInput = document.getElementById("m-year");
-  const avatarInput = document.getElementById("m-avatar");
+  // Edit Role Buttons
+  document.querySelectorAll(".btn-edit-role").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      try {
+        const m = JSON.parse(btn.dataset.role);
+        roleIdInput.value = m.id;
+        modalTitle.textContent = `Edit Executive Role (${m.name})`;
+        saveRoleBtn.textContent = "Update Executive Role";
+        saveRoleBtn.disabled = false;
+        errorBanner.setAttribute("hidden", "");
 
+        nameInput.value = m.name || "";
+        specInput.value = m.specialization || "";
+        yearInput.value = m.year_of_study || "";
+        descInput.value = m.description || "";
+        orderInput.value = m.order_index || 1;
+        avatarInput.value = m.avatar_url || "";
+
+        const standardOpts = Array.from(roleSelect.options).map((o) => o.value);
+        if (standardOpts.includes(m.role)) {
+          roleSelect.value = m.role;
+          customRoleInput.style.display = "none";
+          customRoleInput.value = "";
+        } else {
+          roleSelect.value = "Custom...";
+          customRoleInput.style.display = "block";
+          customRoleInput.value = m.role;
+        }
+
+        roleModal.removeAttribute("hidden");
+      } catch (e) {
+        console.error("Failed to parse role data", e);
+      }
+    });
+  });
+
+  // Delete Role Buttons
+  document.querySelectorAll(".btn-delete-role").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const name = btn.dataset.name;
+      const roleTitle = btn.dataset.roleTitle;
+
+      if (
+        !confirm(
+          `Are you sure you want to remove '${roleTitle}' (${name}) from this executive masthead?`,
+        )
+      ) {
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/team", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ passcode: code, type: "delete_role", id }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.reload();
+        } else {
+          alert(`Delete failed: ${data.error || "Unknown error"}`);
+        }
+      } catch (err) {
+        alert("Network error deleting executive role.");
+      }
+    });
+  });
+
+  // Member Selector Logic
   memberSelect.addEventListener("change", () => {
     const val = memberSelect.value;
     if (val === "__NEW__") {
@@ -629,9 +790,6 @@ const STANDARD_ROLES = [
   });
 
   // Role Dropdown & Custom Role Logic
-  const roleSelect = document.getElementById("role-select");
-  const customRoleInput = document.getElementById("custom-role-input");
-
   roleSelect.addEventListener("change", () => {
     if (roleSelect.value === "Custom...") {
       customRoleInput.style.display = "block";
@@ -681,6 +839,7 @@ const STANDARD_ROLES = [
     errorBanner.setAttribute("hidden", "");
 
     const formData = new FormData(e.target);
+    const roleId = formData.get("id") ? String(formData.get("id")) : undefined;
     const roleTitle = (
       roleSelect.value === "Custom..."
         ? customRoleInput.value
@@ -693,8 +852,11 @@ const STANDARD_ROLES = [
       return;
     }
 
-    // Check for duplicate role in current session
-    if (existingRoles.includes(roleTitle.toLowerCase())) {
+    // Check for duplicate role in current session (excluding the current role if editing)
+    const isDuplicate = existingRoles.some(
+      (r) => r.role === roleTitle.toLowerCase() && r.id !== roleId,
+    );
+    if (isDuplicate) {
       errorBanner.textContent = `The role '${roleTitle}' is already assigned in this academic session. Please edit the existing entry or assign a different role.`;
       errorBanner.removeAttribute("hidden");
       return;
@@ -704,6 +866,7 @@ const STANDARD_ROLES = [
       passcode: code,
       type: "role",
       data: {
+        id: roleId,
         session_id: formData.get("session_id"),
         name: formData.get("name"),
         role: roleTitle,
@@ -715,8 +878,7 @@ const STANDARD_ROLES = [
       },
     };
 
-    const saveBtn = document.getElementById("save-role-btn");
-    saveBtn.disabled = true;
+    saveRoleBtn.disabled = true;
 
     try {
       const res = await fetch("/api/admin/team", {
@@ -730,13 +892,13 @@ const STANDARD_ROLES = [
       } else {
         errorBanner.textContent = `Save failed: ${data.error || "Please check input fields"}`;
         errorBanner.removeAttribute("hidden");
-        saveBtn.disabled = false;
+        saveRoleBtn.disabled = false;
       }
     } catch (err) {
       errorBanner.textContent =
         "Network error saving executive role. Please try again.";
       errorBanner.removeAttribute("hidden");
-      saveBtn.disabled = false;
+      saveRoleBtn.disabled = false;
     }
   });
 </script>
