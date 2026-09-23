@@ -148,33 +148,40 @@ const MOCK_RESEARCHERS: Researcher[] = [
 ];
 
 const MOCK_SESSIONS: AcademicSession[] = [
-  { id: '2026-2027', session_label: '2026/2027 Session', start_year: 2026, end_year: 2027, is_current: true },
-  { id: '2025-2026', session_label: '2025/2026 Session', start_year: 2025, end_year: 2026, is_current: false },
-  { id: '2024-2025', session_label: '2024/2025 Session', start_year: 2024, end_year: 2025, is_current: false }
+  { id: '2026-2027-sem1', session_label: '2026/2027 Sem 1', start_year: 2026, end_year: 2027, is_current: true },
+  { id: '2025-2026-sem3', session_label: '2025/2026 Sem 3', start_year: 2025, end_year: 2026, is_current: false },
+  { id: '2025-2026-sem1-2', session_label: '2025/2026 Sem 1 & 2', start_year: 2025, end_year: 2026, is_current: false }
 ];
 
 const BASE_URL = 'https://ashesiresearchclub.vercel.app';
 
 const MOCK_TEAM_ROLES_BY_SESSION: Record<string, TeamMember[]> = {
-  '2026-2027': [
-    { id: 'c101', name: 'Breanna Paula Dawson', role: 'President', description: 'Leads executive board and strategic vision for the 2026/2027 academic session.', specialization: 'Communications', year_of_study: 'Year 3', order_index: 1, avatar_url: `${BASE_URL}/team/breanna.webp` },
-    { id: 'c102', name: 'Daniel Eta', role: 'Vice President', description: 'Oversees digital platforms, editorial operations, and technology initiatives.', specialization: 'Web Development', year_of_study: 'Year 3', order_index: 2, avatar_url: `${BASE_URL}/team/danieleta.webp` },
-    { id: 'c103', name: 'Sinam Afi Serwa Ametewee', role: 'Editor-in-Chief', description: 'Leads the editorial desk and long-form researcher profile commissions.', specialization: 'Editorial', year_of_study: 'Year 4', order_index: 3, avatar_url: `${BASE_URL}/team/sinam.webp` },
-    { id: 'c104', name: 'Frank Kwizera', role: 'Research & Technical Director', description: 'Directs technical research reviews, algorithm verifications, and academic partnerships.', specialization: 'Computer Science', year_of_study: 'Year 3', order_index: 4 }
+  '2026-2027-sem1': [
+    { id: 'c301', name: 'Breanna Paula Dawson', role: 'President', description: 'Leads executive board and strategic vision for 2026/2027 Sem 1.', specialization: 'Communications', year_of_study: 'Year 2', order_index: 1, avatar_url: `${BASE_URL}/team/breanna.webp` },
+    { id: 'c302', name: 'Daniel Eta', role: 'Vice President', description: 'Oversees digital platforms, technology, and operations.', specialization: 'Web Development', year_of_study: 'Year 2', order_index: 2, avatar_url: `${BASE_URL}/team/danieleta.webp` },
+    { id: 'c303', name: 'Frank Kwizera', role: 'Production Lead', description: 'Leads publication production and technical reviews.', specialization: 'Computer Science', year_of_study: 'Year 2', order_index: 3 },
+    { id: 'c304', name: 'Emmanuella Afefa Bamezon', role: 'Writers & Editors Lead', description: 'Leads editorial writing team and article reviews.', specialization: 'Editorial', year_of_study: 'Year 1', order_index: 4 },
+    { id: 'c305', name: 'Dzifa Ashigbui', role: 'QA & Comms Lead', description: 'Manages quality assurance and member communications.', specialization: 'Communications', year_of_study: 'Year 1', order_index: 5 }
   ],
-  '2025-2026': [
+  '2025-2026-sem3': [
+    { id: 'c201', name: 'Breanna Paula Dawson', role: 'President', description: 'Leads executive board and strategic vision.', specialization: 'Communications', year_of_study: 'Year 2', order_index: 1, avatar_url: `${BASE_URL}/team/breanna.webp` },
+    { id: 'c202', name: 'Daniel Eta', role: 'Vice President', description: 'Oversees digital platforms and technology initiatives.', specialization: 'Web Development', year_of_study: 'Year 2', order_index: 2, avatar_url: `${BASE_URL}/team/danieleta.webp` },
+    { id: 'c203', name: 'Frank Kwizera', role: 'Production Lead', description: 'Leads publication production and layout review.', specialization: 'Computer Science', year_of_study: 'Year 2', order_index: 3 },
+    { id: 'c204', name: 'Emmanuella Afefa Bamezon', role: 'Writers & Editors Lead', description: 'Leads editorial writing team and article reviews.', specialization: 'Editorial', year_of_study: 'Year 1', order_index: 4 },
+    { id: 'c205', name: 'Caleb Johnson', role: 'Reporters Lead', description: 'Leads interviewers and field reporting team.', specialization: 'Journalism', year_of_study: 'Year 2', order_index: 5 },
+    { id: 'c206', name: 'Dzifa Ashigbui', role: 'QA & Comms Lead', description: 'Manages quality assurance and member communications.', specialization: 'Communications', year_of_study: 'Year 1', order_index: 6 },
+    { id: 'c207', name: 'Emmanuel Ajeigbe', role: 'Interviews Lead', description: 'Coordinates student and researcher interviews.', specialization: 'Media', year_of_study: 'Year 2', order_index: 7 },
+    { id: 'c208', name: 'Chuong Mayian', role: 'Secretary', description: 'Manages executive records and session documentation.', specialization: 'Operations', year_of_study: 'Year 2', order_index: 8 }
+  ],
+  '2025-2026-sem1-2': [
     { id: 'c01', name: 'Kelvin Ahiakpor', role: 'President', description: 'Leads the club and coordinates research initiatives across departments.', specialization: 'Research Leadership', year_of_study: 'Year 4', order_index: 1, avatar_url: `${BASE_URL}/team/kelvin.webp` },
     { id: 'c02', name: 'Maame Yaa Adjei-Mensah', role: 'Vice President', description: 'Oversees publications and member outreach, and liaises with student groups.', specialization: 'Creative Direction', year_of_study: 'Year 4', order_index: 2, avatar_url: `${BASE_URL}/team/maame.webp` },
     { id: 'c03', name: 'Breanna Paula Dawson', role: 'Secretary', description: 'Manages editorial workflow and the quarterly magazine production.', specialization: 'Communications', year_of_study: 'Year 2', order_index: 3, avatar_url: `${BASE_URL}/team/breanna.webp` },
     { id: 'c04', name: 'Emmanuel Antwi-Buasiako', role: 'Stakeholder Relations', description: 'Builds collaborations with stakeholders, sponsors and research partners.', specialization: 'Partnerships', year_of_study: 'Year 3', order_index: 4, avatar_url: `${BASE_URL}/team/emmanuel.webp` },
-    { id: 'c05', name: 'Sinam Afi Serwa Ametewee', role: 'Lead Editor', description: 'Oversees the editorial team and ensures high-quality publications.', specialization: 'Editorial', year_of_study: 'Year 3', order_index: 5, avatar_url: `${BASE_URL}/team/sinam.webp` },
+    { id: 'c05', name: 'Sinam Afi Serwa Ametewee', role: 'Writers & Editors Lead', description: 'Oversees the editorial team and ensures high-quality publications.', specialization: 'Editorial', year_of_study: 'Year 3', order_index: 5, avatar_url: `${BASE_URL}/team/sinam.webp` },
     { id: 'c06', name: 'Josephine Doamekpor', role: 'Social Media & Outreach Lead', description: 'Manages social media presence and outreach initiatives to engage the Ashesi community.', specialization: 'Partnerships', year_of_study: 'Year 3', order_index: 6, avatar_url: `${BASE_URL}/team/kekeli.webp` },
     { id: 'c07', name: 'Daniel Eta', role: 'Web Development Lead', description: 'Leads the development and maintenance of the club website and digital platforms.', specialization: 'Web Development', year_of_study: 'Year 2', order_index: 7, avatar_url: `${BASE_URL}/team/danieleta.webp` },
     { id: 'c08', name: 'Marge Hagan', role: 'Interviewers & Reporters Lead', description: 'Leads the team of interviewers and reporters to gather and produce high-quality content.', specialization: 'Content Creation', year_of_study: 'Year 4', order_index: 8, avatar_url: `${BASE_URL}/team/marge.webp` }
-  ],
-  '2024-2025': [
-    { id: 'c09', name: 'Nana Yaw Osei', role: 'President', description: 'Founding Executive Chair and research lead for the 2024/2025 academic session.', specialization: 'Computer Science', year_of_study: 'Class of 2025', order_index: 1 },
-    { id: 'c10', name: 'Akosua Bediako', role: 'Vice President', description: 'Head of operations and researcher outreach for 2024/2025.', specialization: 'Engineering', year_of_study: 'Class of 2025', order_index: 2 }
   ]
 };
 
