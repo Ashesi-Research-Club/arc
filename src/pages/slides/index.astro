@@ -1,0 +1,99 @@
+---
+import Base from '../../layouts/Base.astro';
+
+export const prerender = false;
+
+const decks = [
+  {
+    title: 'Inquiries on the Hill — ARC General Meeting 01',
+    date: '03 / 10 / 26',
+    datePath: '/slides/03/10/26',
+    aliasPath: '/slides/arc-general-meeting',
+    description: 'Building a world-class editorial publication and research incubator for Ashesi. Phase architecture, operational desks, and AURC 2027 pipeline.',
+    presenter: 'Acting Head',
+    period: 'October 2026'
+  }
+];
+---
+
+<Base title="Presentation Slide Decks — Ashesi Research Club">
+  <main>
+    <header class="page-header">
+      <div class="eyebrow">Presentation Decks</div>
+      <h1>Inquiries on the Hill</h1>
+      <p class="lede">HTML presentation slide decks published for general meetings, research workshops, and editorial clinics.</p>
+    </header>
+
+    <div class="deck-grid">
+      {decks.map((d) => (
+        <article class="deck-card">
+          <div class="card-head">
+            <span class="deck-date">{d.date}</span>
+            <span class="deck-period">{d.period}</span>
+          </div>
+          <h2><a href={d.datePath}>{d.title}</a></h2>
+          <p class="desc">{d.description}</p>
+          <div class="card-footer">
+            <span class="presenter">Presenter: {d.presenter}</span>
+            <div class="actions">
+              <a href={d.datePath} class="arc-button" data-variant="primary">Launch Deck (03/10/26) →</a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</Base>
+
+<style>
+  main { max-width: 900px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  .page-header { margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 { font-family: var(--font-display); font-weight: 400; font-size: 52px; line-height: 1.04; color: var(--ink); margin: 12px 0 8px; }
+  .lede { font-family: var(--font-body); font-size: 19px; line-height: 1.55; color: var(--ink); }
+
+  .deck-grid { display: flex; flex-direction: column; gap: 24px; }
+  .deck-card {
+    border: 1px solid var(--ink);
+    padding: 28px;
+    background: #fff;
+    transition: transform 120ms ease;
+  }
+  .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .deck-date { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink); }
+  .deck-period { font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: var(--track-label); text-transform: uppercase; color: var(--muted); }
+  
+  .deck-card h2 { font-family: var(--font-display); font-size: 28px; font-weight: 400; margin: 0 0 12px; line-height: 1.15; }
+  .deck-card h2 a { color: var(--ink); text-decoration: none; }
+  .deck-card h2 a:hover { text-decoration: underline; }
+
+  .desc { font-family: var(--font-body); font-size: 16px; line-height: 1.6; color: var(--muted); margin-bottom: 24px; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline); padding-top: 16px; flex-wrap: wrap; gap: 12px; }
+  .presenter { font-family: var(--font-sans); font-size: 13px; color: var(--muted); }
+  .actions { display: flex; gap: 12px; }
+  
+  .arc-button {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .arc-button[data-variant="primary"] { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+  .arc-button[data-variant="primary"]:hover { background: #333; }
+
+  @media (max-width: 767px) {
+    main { padding: 32px 20px 72px; }
+    h1 { font-size: 38px; }
+    .card-footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>

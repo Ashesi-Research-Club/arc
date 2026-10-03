@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inquiries on the Hill — ARC General Meeting 01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#FDFCFA;--ink:#111111;--ochre:#C5A059;--rule:rgba(17,17,17,.12);--mute:rgba(17,17,17,.62);
+--serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"Space Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+--pad:clamp(24px,5vw,80px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--sans);overflow:hidden}
+.deck{position:fixed;inset:0;display:flex;flex-direction:column}
+header,footer{display:flex;justify-content:space-between;align-items:center;padding:20px var(--pad);font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-color:var(--rule);border-style:solid;border-width:0}
+header{border-bottom-width:1px}footer{border-top-width:1px}
+header b{font-weight:500;color:var(--ink)}header span{color:var(--mute)}
+#count{font-variant-numeric:tabular-nums}
+.stage{position:relative;flex:1;min-height:0}
+.slide{position:absolute;inset:0;padding:clamp(20px,4vh,56px) var(--pad);display:none;flex-direction:column;justify-content:center;overflow-y:auto}
+.slide.active{display:flex;animation:in .5s ease both}
+@keyframes in{from{opacity:0}to{opacity:1}}
+.tag{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);font-weight:500;margin-bottom:clamp(14px,3vh,32px)}
+h1,h2{font-family:var(--serif);font-weight:600;line-height:1.02;letter-spacing:-.02em}
+h1{font-size:clamp(48px,10.5vw,168px);font-weight:700}
+h2{font-size:clamp(32px,5.2vw,78px);max-width:18ch}
+.sub{font-family:var(--serif);font-size:clamp(18px,2.2vw,32px);line-height:1.4;max-width:34ch;color:var(--mute);margin-top:clamp(16px,3vh,36px)}
+.meta{margin-top:clamp(24px,6vh,72px);padding-top:16px;border-top:1px solid var(--rule);font-size:13px;letter-spacing:.1em;text-transform:uppercase;display:flex;gap:40px;flex-wrap:wrap;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:500}
+p.body{font-family:var(--serif);font-size:clamp(17px,1.6vw,24px);line-height:1.6;max-width:46ch}
+.split{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,5vw,88px);align-items:end}
+.callout{border-top:2px solid var(--ochre);padding-top:20px}
+.callout .big{font-family:var(--serif);font-size:clamp(26px,3.2vw,48px);line-height:1.15;font-weight:600;letter-spacing:-.01em}
+.callout .lab{margin-top:14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.list{margin-top:clamp(20px,4vh,48px);list-style:none;border-top:1px solid var(--rule)}
+.list li{display:grid;grid-template-columns:72px 1fr;align-items:baseline;gap:12px;padding:clamp(12px,2.2vh,22px) 0;border-bottom:1px solid var(--rule);font-family:var(--serif);font-size:clamp(18px,2.3vw,34px);line-height:1.25}
+.list li i{font-family:var(--sans);font-style:normal;font-size:13px;letter-spacing:.14em;color:var(--ochre);font-weight:500}
+.phases{display:grid;grid-template-columns:repeat(3,1fr);margin-top:clamp(24px,5vh,56px);border-top:1px solid var(--ink)}
+.phase{padding:20px 24px 8px 0;position:relative}
+.phase+.phase{padding-left:24px;border-left:1px solid var(--rule)}
+.phase:before{content:"";position:absolute;top:-5px;left:0;width:9px;height:9px;background:var(--ochre);border-radius:50%}
+.phase+.phase:before{left:-5px}
+.phase small{display:block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);font-weight:500;margin-bottom:10px}
+.phase h3{font-family:var(--serif);font-size:clamp(20px,2.3vw,34px);line-height:1.15;font-weight:600;margin-bottom:10px}
+.phase p{font-size:clamp(14px,1.2vw,17px);line-height:1.5;color:var(--mute)}
+.note{margin-top:clamp(20px,4vh,40px);padding-top:14px;border-top:1px solid var(--rule);font-size:14px;letter-spacing:.04em}
+.note b{color:var(--ochre);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:12px;margin-right:14px}
+.desks{display:grid;grid-template-columns:repeat(4,1fr);margin-top:clamp(24px,5vh,56px);border-top:1px solid var(--ink)}
+.desk{padding:20px 20px 12px 0}
+.desk+.desk{padding-left:20px;border-left:1px solid var(--rule)}
+.desk i{font-style:normal;font-size:13px;letter-spacing:.14em;color:var(--ochre);font-weight:500}
+.desk h3{font-family:var(--serif);font-size:clamp(20px,2vw,30px);line-height:1.15;font-weight:600;margin:12px 0 18px;min-height:2.3em}
+.desk ul{list-style:none;font-size:clamp(14px,1.15vw,17px);line-height:1.5;color:var(--mute)}
+.desk li{padding:8px 0;border-top:1px solid var(--rule)}
+blockquote{margin-top:clamp(24px,5vh,56px);padding-top:20px;border-top:2px solid var(--ochre);font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.4vw,36px);line-height:1.3;max-width:30ch}
+nav{display:flex;gap:10px}
+button{font:500 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:none;border:1px solid var(--ink);padding:10px 18px;cursor:pointer;transition:background .2s,color .2s}
+button:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+button:disabled{opacity:.3;cursor:default}
+button:focus-visible{outline:2px solid var(--ochre);outline-offset:3px}
+#bar{height:2px;background:var(--ochre);width:0;transition:width .4s ease}
+@media(max-width:820px){.split{grid-template-columns:1fr}.phases,.desks{grid-template-columns:1fr}.phase,.phase+.phase,.desk,.desk+.desk{padding-left:0;border-left:0;border-bottom:1px solid var(--rule)}.phase:before{display:none}.desk h3{min-height:0}.list li{grid-template-columns:48px 1fr}header span{display:none}footer .hint{display:none}}
+@media(prefers-reduced-motion:reduce){.slide.active{animation:none}#bar{transition:none}}
+</style>
+</head>
+<body>
+<div class="deck">
+<header><b>Ashesi Research Club</b><span>General Meeting 01</span><b id="count">01 / 07</b></header>
+<div id="bar"></div>
+<main class="stage">
+
+<section class="slide active">
+  <div class="tag">Ashesi Research Club — General Meeting 01</div>
+  <h1>Inquiries<br>on the Hill.</h1>
+  <p class="sub">Building a world-class editorial publication and research incubator for Ashesi.</p>
+  <div class="meta"><span><b>Acting Head</b></span><span>October 2026</span></div>
+</section>
+
+<section class="slide">
+  <div class="tag">The Core Shift — What ARC Is</div>
+  <div class="split">
+    <div>
+      <h2>Beyond the Screen: Research as Cultural Narrative</h2>
+      <p class="body" style="margin-top:clamp(16px,3vh,32px)">We are moving away from dry, isolated classroom papers. ARC turns complex campus scholarship, from bioengineering to signal processing, into investigative, high-status journalism.</p>
+    </div>
+    <div class="callout">
+      <div class="big">Four anchored pieces live. Eight student researchers entering the pipeline.</div>
+      <div class="lab">Where we stand today</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">The Digital Platform — The Engine</div>
+  <h2>A Bespoke Digital Journal</h2>
+  <ol class="list">
+    <li><i>01</i>Editorial typography &amp; long-form narrative</li>
+    <li><i>02</i>In-line interactive STEM checkpoints &amp; quizzes</li>
+    <li><i>03</i>Integrated audio interview recordings</li>
+    <li><i>04</i>Zero-bloat, custom-engineered publishing stack</li>
+  </ol>
+</section>
+
+<section class="slide">
+  <div class="tag">Semester Roadmap &amp; Key Milestones</div>
+  <h2>The Semester Architecture</h2>
+  <div class="phases">
+    <div class="phase"><small>Phase 1 · Weeks 1–4</small><h3>Onboarding &amp; Backlog Sprint</h3><p>Desks form, onboarding completes, and the backlog of in-flight pieces gets cleared.</p></div>
+    <div class="phase"><small>Phase 2 · Weeks 5–9</small><h3>Bi-weekly Editorial Drops</h3><p>A steady publishing rhythm: one release every two weeks.</p></div>
+    <div class="phase"><small>Phase 3 · Weeks 10–12</small><h3>The Culmination</h3><p>Research Showcase &amp; Print Launch.</p></div>
+  </div>
+  <div class="note"><b>House Rule</b>Mid-term break is strictly protected: zero meeting obligations.</div>
+</section>
+
+<section class="slide">
+  <div class="tag">The AURC 2027 Pipeline</div>
+  <div class="split">
+    <div>
+      <h2>The Bridge to AURC 2027</h2>
+      <p class="body" style="margin-top:clamp(16px,3vh,32px)">We are partnering with research faculty and CaRINE initiatives to serve as the campus feeder for the Ashesi Undergraduate Research Conference.</p>
+    </div>
+    <div class="callout">
+      <div class="lab" style="margin:0 0 14px">Milestone · GM3</div>
+      <div class="big">Abstract &amp; Poster Translation Clinic</div>
+      <p class="body" style="margin-top:14px;font-size:clamp(15px,1.3vw,19px);color:var(--mute)">Helping students turn semester research into accepted conference papers.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">The 4 Operational Desks — Where You Fit In</div>
+  <h2>Choose Your Discipline</h2>
+  <div class="desks">
+    <div class="desk"><i>01</i><h3>The Editorial Desk</h3><ul><li>Writers</li><li>Fact-Checkers</li><li>Translators</li></ul></div>
+    <div class="desk"><i>02</i><h3>The Visual Engineering Desk</h3><ul><li>Editorial Layout</li><li>InDesign / Figma</li><li>Photography</li></ul></div>
+    <div class="desk"><i>03</i><h3>The Web &amp; Interactive Desk</h3><ul><li>UI Components</li><li>MDX Interactivity</li><li>Platform Dev</li></ul></div>
+    <div class="desk"><i>04</i><h3>The Research &amp; Outreach Desk</h3><ul><li>AURC Coordination</li><li>Faculty Liaison</li><li>Ethics</li></ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">Next Sprints &amp; Immediate Action</div>
+  <h2>The Next 10 Days</h2>
+  <ol class="list">
+    <li><i>01</i>Clear the 3 audio transcripts currently in the pipeline.</li>
+    <li><i>02</i>Book our next 2 student researcher interviews (Austine &amp; Ronald/SK).</li>
+    <li><i>03</i>Desk onboarding form &amp; kickoff sessions this week.</li>
+  </ol>
+  <blockquote>“Research progress is a relay race. Let's build something lasting.”</blockquote>
+</section>
+
+</main>
+<footer>
+  <span class="hint">Use ← → keys to navigate</span>
+  <nav><button id="prev" aria-label="Previous slide">Prev</button><button id="next" aria-label="Next slide">Next</button></nav>
+</footer>
+</div>
+<script>
+(function(){
+  var s=[].slice.call(document.querySelectorAll('.slide')),i=0,
+      c=document.getElementById('count'),b=document.getElementById('bar'),
+      p=document.getElementById('prev'),n=document.getElementById('next');
+  function pad(x){return (x<10?'0':'')+x}
+  function go(k){
+    i=Math.max(0,Math.min(s.length-1,k));
+    s.forEach(function(e,j){e.classList.toggle('active',j===i)});
+    c.textContent=pad(i+1)+' / '+pad(s.length);
+    b.style.width=((i+1)/s.length*100)+'%';
+    p.disabled=i===0;n.disabled=i===s.length-1;
+    s[i].scrollTop=0;
+    if(history.replaceState)history.replaceState(null,'','#'+(i+1));
+  }
+  p.onclick=function(){go(i-1)};n.onclick=function(){go(i+1)};
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();go(i+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(i-1)}
+    else if(e.key==='Home')go(0);else if(e.key==='End')go(s.length-1);
+  });
+  var x0=null;
+  document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0===null)return;var d=e.changedTouches[0].clientX-x0;
+    if(Math.abs(d)>50)go(d<0?i+1:i-1);x0=null;
+  });
+  var h=parseInt(location.hash?location.hash.slice(1):'1',10);
+  go(h?h-1:0);
+})();
+</script>
+</body>
+</html>
